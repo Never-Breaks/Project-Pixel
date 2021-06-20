@@ -72,7 +72,9 @@ public class PlayerTest : MonoBehaviour
                 #endregion
                 break;
             case PlayerState.Jumping:
+                #region Player Movement
 
+                #endregion
 
                 break;
             case PlayerState.Aiming:
@@ -106,9 +108,7 @@ public class PlayerTest : MonoBehaviour
 
             case PlayerState.Jumping:
 
-                #region Player Movement
-
-                #endregion
+               
                 bool isGrounded = true;
                 Debug.Log(isGrounded);
 
