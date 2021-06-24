@@ -16,9 +16,18 @@ public class PlayerTest : MonoBehaviour
     public CharacterController cc;
     public bool isGrounded;
 
-    //public Cinemachine.AxisState xAxis;
-    //public Cinemachine.AxisState yAxis;
-    //public Transform cameraLookAt;
+    public Cinemachine.AxisState xAxis;
+    public Cinemachine.AxisState yAxis;
+    public Transform cameraLookAt;
+    public Vector3 newCameraRot;
+    public float sensitivityX;
+    public float sensitivityY;
+    public bool viewInvertedX;
+    public bool viewInvertedY;
+    public float viewClampYmin;
+    public float viewClampYmax;
+
+
 
 
     // Start is called before the first frame update
@@ -27,6 +36,9 @@ public class PlayerTest : MonoBehaviour
         cc = GetComponent<CharacterController>();
         playerState = PlayerState.Default;
         playerInput = GetComponent<PlayerInput>();
+        newCameraRot = cameraLookAt.localRotation.eulerAngles;
+
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     public void OnMove(InputValue value)
@@ -37,6 +49,9 @@ public class PlayerTest : MonoBehaviour
     public void OnLook(InputValue value)
     {
         lookVal = value.Get<Vector2>();
+        //lookVal *= 0.5f;
+        //lookVal *= 0.1f;
+        //Debug.Log(lookVal);
     }
 
     public void OnJump (InputValue value)
@@ -61,32 +76,36 @@ public class PlayerTest : MonoBehaviour
         Debug.Log("fire");
     }
 
-    // Update is called once per frame
-
     private void FixedUpdate()
     {
         switch(playerState)
         {
             case PlayerState.Default:
+
+                //#region Camera Control
+                ////pitch rotation clamped to a min and max value
+                //newCameraRot.x += sensitivityY * lookVal.y * Time.deltaTime;
+                //newCameraRot.x = Mathf.Clamp(newCameraRot.x, viewClampYmin, viewClampYmax);
+
+                ////yaw rotation 
+                //newCameraRot.y += sensitivityX * lookVal.x * Time.deltaTime;
+
+                //cameraLookAt.localRotation = Quaternion.Euler(newCameraRot);
+                //#endregion
+
                 #region Player Movement
 
                 Vector3 direction = new Vector3(moveVal.x, 0, moveVal.y);
                 Vector3 movement = transform.TransformDirection(direction) * speed;
                 isGrounded = cc.SimpleMove(movement);
 
-                #endregion
-
-                //xAxis.Update(Time.fixedDeltaTime);
-                //yAxis.Update(Time.fixedDeltaTime);
-
-                //cameraLookAt.eulerAngles = new Vector3(yAxis.Value, xAxis.Value, 0);
-
+                #endregion                
                 break;
             case PlayerState.Jumping:
                 #region Player Movement
 
                 #endregion
-
+                
                 break;
             case PlayerState.Aiming:
                 break;
@@ -100,7 +119,7 @@ public class PlayerTest : MonoBehaviour
         switch (playerState)
         {
             case PlayerState.Default:
-                Debug.Log(playerInput.currentActionMap);
+               // Debug.Log(playerInput.currentActionMap);
 
             
 
