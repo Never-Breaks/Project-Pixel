@@ -171,7 +171,7 @@ MonoBehaviour:
   ShoulderOffset: {x: 0.5, y: -0.4, z: 0}
   VerticalArmLength: 0.4
   CameraSide: 0.5
-  CameraDistance: 2
+  CameraDistance: 4
   CameraCollisionFilter:
     serializedVersion: 2
     m_Bits: 64
@@ -281,7 +281,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!114 &376035287
 MonoBehaviour:
@@ -474,7 +474,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 90071ac8b5b9cc54bbb56289068db357, type: 2}
     - target: {fileID: 919132149155446097, guid: e7af6c0c072e60f4e826e657db728949, type: 3}
       propertyPath: m_Name
-      value: watermaternewwalk
+      value: Model
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: e7af6c0c072e60f4e826e657db728949, type: 3}
       propertyPath: m_IsActive
@@ -596,7 +596,7 @@ Transform:
   m_LocalScale: {x: 10, y: 1, z: 10}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &803748266
 GameObject:
@@ -665,13 +665,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 803748266}
-  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
-  m_LocalPosition: {x: 0, y: 0.561, z: 2.093}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.47500002, z: -4.0000005}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 14200502}
-  m_Father: {fileID: 931084911}
-  m_RootOrder: 10
+  m_Father: {fileID: 1870605595}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &803748269
 MonoBehaviour:
@@ -685,7 +685,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44d70cc20219cd84593f67d248eafe36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Offset: {x: 0, y: 0, z: 0}
+  m_Offset: {x: 0, y: 1.27, z: 0}
   m_ApplyAfter: 1
   m_PreserveComposition: 0
 --- !u!1 &885887010
@@ -711,13 +711,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 885887010}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0.561, z: 0.093}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.475, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 931084911}
-  m_RootOrder: 9
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_Father: {fileID: 1870605595}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &931084911 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: e7af6c0c072e60f4e826e657db728949, type: 3}
@@ -801,12 +801,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1339174785}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: -1.566, y: 0.60599995, z: -4.517}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.79499996, z: -4.0000005}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_Father: {fileID: 1870605595}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1339174789
 MonoBehaviour:
@@ -969,7 +969,7 @@ GameObject:
   - component: {fileID: 1483565434}
   - component: {fileID: 1483565433}
   - component: {fileID: 1483565437}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1050,7 +1050,7 @@ Transform:
   m_LocalScale: {x: 10, y: 6.67, z: 10}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1483565437
 Rigidbody:
@@ -1096,12 +1096,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1870605594}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.566, y: 0.52, z: -6.61}
+  m_LocalPosition: {x: -1.566, y: -0.008, z: -6.61}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 931084911}
+  - {fileID: 1339174788}
+  - {fileID: 803748268}
+  - {fileID: 885887011}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1870605596
 MonoBehaviour:
@@ -1190,13 +1193,19 @@ MonoBehaviour:
       m_LegacyHeadingDefinition: 0
       m_LegacyVelocityFilterStrength: 0
   cameraLookAt: {fileID: 885887011}
+  mainCam: {fileID: 0}
   newCameraRot: {x: 0, y: 0, z: 0}
-  sensitivityX: 10
-  sensitivityY: -10
+  sensitivityX: 3
+  sensitivityY: -3
   viewInvertedX: 0
   viewInvertedY: 0
-  viewClampYmin: -45
-  viewClampYmax: 45
+  viewClampYmin: -35
+  viewClampYmax: 35
+  acceleration: {x: 2000, y: 2000}
+  velocity: {x: 0, y: 0}
+  turnSmoothTime: 0.1
+  turnSmoothVelocity: 0
+  model: {fileID: 0}
 --- !u!143 &1870605598
 CharacterController:
   m_ObjectHideFlags: 0

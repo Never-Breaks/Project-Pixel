@@ -19,6 +19,7 @@ public class PlayerTest : MonoBehaviour
     public Cinemachine.AxisState xAxis;
     public Cinemachine.AxisState yAxis;
     public Transform cameraLookAt;
+    public Transform mainCam;
     public Vector3 newCameraRot;
     public float sensitivityX;
     public float sensitivityY;
@@ -27,6 +28,13 @@ public class PlayerTest : MonoBehaviour
     public float viewClampYmin;
     public float viewClampYmax;
 
+    public Vector2 acceleration;
+    public Vector2 velocity;
+
+    public float turnSmoothTime = 3f;
+    public float turnSmoothVelocity;
+
+    public GameObject model;
 
 
 
@@ -37,7 +45,8 @@ public class PlayerTest : MonoBehaviour
         playerState = PlayerState.Default;
         playerInput = GetComponent<PlayerInput>();
         newCameraRot = cameraLookAt.localRotation.eulerAngles;
-
+        model = this.transform.GetChild(0).gameObject;
+        mainCam = this.transform.GetChild(1);
         Cursor.lockState = CursorLockMode.Locked;
     }
 
@@ -82,22 +91,48 @@ public class PlayerTest : MonoBehaviour
         {
             case PlayerState.Default:
 
-                //#region Camera Control
-                ////pitch rotation clamped to a min and max value
-                //newCameraRot.x += sensitivityY * lookVal.y * Time.deltaTime;
-                //newCameraRot.x = Mathf.Clamp(newCameraRot.x, viewClampYmin, viewClampYmax);
+                #region Camera Control
 
-                ////yaw rotation 
-                //newCameraRot.y += sensitivityX * lookVal.x * Time.deltaTime;
+                Vector2 wantedVelocity = lookVal * new Vector2(sensitivityX, sensitivityY);
+                Debug.Log(wantedVelocity);
 
-                //cameraLookAt.localRotation = Quaternion.Euler(newCameraRot);
-                //#endregion
+                //slowy accelerate to a velocity. this is for camera smoothing
+                velocity = new Vector2(
+                    Mathf.MoveTowards(velocity.x, wantedVelocity.x, acceleration.x * Time.deltaTime),
+                    Mathf.MoveTowards(velocity.y, wantedVelocity.y, acceleration.y * Time.deltaTime));
 
-                #region Player Movement
+                //camera pitch rotation clamped to a min and max value
+                newCameraRot.x += sensitivityY * -velocity.y /*lookVal.y*/ * Time.deltaTime;
+                newCameraRot.x = Mathf.Clamp(newCameraRot.x, viewClampYmin, viewClampYmax);
 
-                Vector3 direction = new Vector3(moveVal.x, 0, moveVal.y);
-                Vector3 movement = transform.TransformDirection(direction) * speed;
-                isGrounded = cc.SimpleMove(movement);
+                //camera yaw rotation 
+                newCameraRot.y += sensitivityX * velocity.x /*lookVal.x*/ * Time.deltaTime;
+
+                //rotate the cameralook at with the cameras new rotation
+                cameraLookAt.localRotation = Quaternion.Euler(newCameraRot);
+
+                #endregion
+
+                #region Player Movement                
+              
+                Vector3 direction = new Vector3(moveVal.x, 0, moveVal.y).normalized;
+                
+                if(direction.magnitude >= 0.1f)
+                {
+                    //get angle to see how much we need to rotate on y axis from moving relative to camera
+                    float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.eulerAngles.y;
+                    //smooth angle for player rotation
+                    float angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
+
+                    //rotate model by smooth angle so follow target doesnt also rotate
+                    model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+                    //turn rotation to direction. direction you want to move in
+                    Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+
+                    //move
+                    cc.Move(moveDirection.normalized * speed * Time.deltaTime);
+                }
 
                 #endregion                
                 break;
