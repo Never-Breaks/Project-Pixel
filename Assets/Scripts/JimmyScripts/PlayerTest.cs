@@ -16,6 +16,11 @@ public class PlayerTest : MonoBehaviour
     public CharacterController cc;
     public bool isGrounded;
 
+    //public Cinemachine.AxisState xAxis;
+    //public Cinemachine.AxisState yAxis;
+    //public Transform cameraLookAt;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -70,6 +75,12 @@ public class PlayerTest : MonoBehaviour
                 isGrounded = cc.SimpleMove(movement);
 
                 #endregion
+
+                //xAxis.Update(Time.fixedDeltaTime);
+                //yAxis.Update(Time.fixedDeltaTime);
+
+                //cameraLookAt.eulerAngles = new Vector3(yAxis.Value, xAxis.Value, 0);
+
                 break;
             case PlayerState.Jumping:
                 #region Player Movement
