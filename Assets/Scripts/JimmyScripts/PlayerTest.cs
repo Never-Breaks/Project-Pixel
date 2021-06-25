@@ -21,8 +21,13 @@ public class PlayerTest : MonoBehaviour
     public Transform cameraLookAt;
     public Transform mainCam;
     public Vector3 newCameraRot;
+    public float mouseSensitivityX;
+    public float mouseSensitivityY;
+    public float controllerSensitivityX;
+    public float controllerSensitivityY;
     public float sensitivityX;
     public float sensitivityY;
+
     public bool viewInvertedX;
     public bool viewInvertedY;
     public float viewClampYmin;
@@ -31,7 +36,7 @@ public class PlayerTest : MonoBehaviour
     public Vector2 acceleration;
     public Vector2 velocity;
 
-    public float turnSmoothTime = 3f;
+    public float turnSmoothTime = 100f;
     public float turnSmoothVelocity;
 
     public GameObject model;
@@ -48,6 +53,18 @@ public class PlayerTest : MonoBehaviour
         model = this.transform.GetChild(0).gameObject;
         mainCam = this.transform.GetChild(1);
         Cursor.lockState = CursorLockMode.Locked;
+
+        if (playerInput.currentControlScheme == "GamePad")
+        {
+            sensitivityX = controllerSensitivityX;
+            sensitivityY = controllerSensitivityY;
+        }
+        else
+        {
+            sensitivityX = mouseSensitivityX;
+            sensitivityY = mouseSensitivityY;
+        }
+
     }
 
     public void OnMove(InputValue value)
@@ -58,9 +75,13 @@ public class PlayerTest : MonoBehaviour
     public void OnLook(InputValue value)
     {
         lookVal = value.Get<Vector2>();
-        //lookVal *= 0.5f;
-        //lookVal *= 0.1f;
-        //Debug.Log(lookVal);
+
+        if (playerInput.currentControlScheme == "Keyboard&Mouse")
+        {
+            lookVal *= 0.5f;
+            lookVal *= 0.1f;
+            Debug.Log(lookVal);
+        }
     }
 
     public void OnJump (InputValue value)
@@ -85,6 +106,20 @@ public class PlayerTest : MonoBehaviour
         Debug.Log("fire");
     }
 
+    public void OnControlsChanged()
+    {
+        if (playerInput.currentControlScheme == "GamePad")
+        {
+            sensitivityX = controllerSensitivityX;
+            sensitivityY = controllerSensitivityY;
+        }
+        else
+        {
+            sensitivityX = mouseSensitivityX;
+            sensitivityY = mouseSensitivityY;
+        }
+    }
+
     private void FixedUpdate()
     {
         switch(playerState)
@@ -93,8 +128,9 @@ public class PlayerTest : MonoBehaviour
 
                 #region Camera Control
 
-                Vector2 wantedVelocity = lookVal * new Vector2(sensitivityX, sensitivityY);
-                Debug.Log(wantedVelocity);
+                Vector2 wantedVelocity;
+
+                wantedVelocity = lookVal * new Vector2(mouseSensitivityX, mouseSensitivityY);                
 
                 //slowy accelerate to a velocity. this is for camera smoothing
                 velocity = new Vector2(
