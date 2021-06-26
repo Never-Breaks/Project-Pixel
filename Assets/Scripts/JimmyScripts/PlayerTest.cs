@@ -96,7 +96,6 @@ public class PlayerTest : MonoBehaviour
     public float gravity = 14.0f;
     public float jumpForce = 10.0f;
 
-
     // Start is called before the first frame update
     void Start()
     {
@@ -157,8 +156,6 @@ public class PlayerTest : MonoBehaviour
         if (isGrounded)
         {
             verticalVelocity = jumpForce;
-
-           // cc.Move(new Vector3(0, verticalVelocity, 0) * Time.deltaTime);
 
             //switch controls to jump mode
             playerInput.SwitchCurrentActionMap("PlayerJump");
@@ -227,10 +224,11 @@ public class PlayerTest : MonoBehaviour
                 if (isGrounded)
                 {
                     verticalVelocity = -gravity * Time.deltaTime;
-                }           
+                }
                 else
                 {
                     verticalVelocity -= gravity * Time.deltaTime;
+                
                 }
                 direction = new Vector3(moveVal.x, 0, moveVal.y).normalized;
 
@@ -247,14 +245,14 @@ public class PlayerTest : MonoBehaviour
                     //turn rotation to direction. direction you want to move in
                     Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
 
-                    moveDirection.y = verticalVelocity;
+                    Vector3 move = moveDirection.normalized * speed;
                     //move
-                    cc.Move(moveDirection.normalized * speed * Time.deltaTime);
+                    cc.Move(new Vector3(move.x,verticalVelocity,move.z) * Time.deltaTime);
                 }
                 else
                 {
                     direction = new Vector3(0, verticalVelocity, 0);
-                    cc.Move(direction * Time.deltaTime);
+                    cc.Move(direction  * Time.deltaTime);
                 }
 
                 #endregion                
@@ -280,10 +278,10 @@ public class PlayerTest : MonoBehaviour
                     //turn rotation to direction. direction you want to move in
                     Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
 
-                    moveDirection.y = verticalVelocity;
+                    Vector3 move = moveDirection.normalized * speed;
 
                     //move
-                    cc.Move(moveDirection.normalized * speed * Time.deltaTime);
+                    cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.deltaTime);
                 }
                 else
                 {
@@ -362,15 +360,15 @@ public class PlayerTest : MonoBehaviour
             case PlayerState.Jumping:
 
                 //if the player has grounded
-                //if (isGrounded)
-                //{
-                //    Debug.Log("yessir");
-                //    //switch controls to default mode
-                //    playerInput.SwitchCurrentActionMap("PlayerMove");
+                if (isGrounded)
+                {
+                    Debug.Log("yessir");
+                    //switch controls to default mode
+                    playerInput.SwitchCurrentActionMap("PlayerMove");
 
-                //    //switch playerstate to default
-                //    playerState = PlayerState.Default;
-                //}
+                    //switch playerstate to default
+                    playerState = PlayerState.Default;
+                }
                 break;
 
             case PlayerState.Aiming:
