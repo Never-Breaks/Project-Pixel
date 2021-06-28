@@ -2,14 +2,14 @@
     "name": "New Controls",
     "maps": [
         {
-            "name": "PlayerMove",
+            "name": "Player",
             "id": "2f618df0-c727-4922-a42c-4dd08aabe090",
             "actions": [
                 {
                     "name": "Move",
                     "type": "Value",
                     "id": "36a8aed4-e71f-42bd-8524-8dadcc6ed85c",
-                    "expectedControlType": "Vector2",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": ""
                 },
@@ -41,6 +41,14 @@
                     "name": "Interact",
                     "type": "Button",
                     "id": "fe51e92d-b91e-4077-a49e-f3218ebd2eb5",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Fire",
+                    "type": "Button",
+                    "id": "6c984b7d-c02b-45e5-bcf9-eb9c5c3c98aa",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
@@ -161,7 +169,7 @@
                     "name": "",
                     "id": "475e9ace-5ce2-4ee8-809b-ea775da19f7e",
                     "path": "<Keyboard>/space",
-                    "interactions": "",
+                    "interactions": "Press",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Jump",
@@ -244,6 +252,28 @@
                     "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d60526f6-2952-42c8-9a9b-dbfeec8b5dfb",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Fire",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b1373441-9238-44ae-b7bd-3d25fd987b86",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "GamePad",
+                    "action": "Fire",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -255,6 +285,14 @@
                     "name": "Move",
                     "type": "Value",
                     "id": "cb25058e-99bb-49ee-98d2-60aeeb11abbd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Look",
+                    "type": "Value",
+                    "id": "7e643789-4ee0-4238-91f8-08b7eebe8310",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": ""
@@ -359,6 +397,39 @@
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "134d8d95-2403-45b8-bc8e-058794a0673e",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "GamePad",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d16ba31b-a8e0-41ee-a3d8-a0dd3b1947e4",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "GamePad",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2b0a7a00-0c3b-407c-9b22-86c5c36249d2",
+                    "path": "<Pointer>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },

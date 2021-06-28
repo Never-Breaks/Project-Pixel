@@ -763,7 +763,7 @@ Transform:
   m_GameObject: {fileID: 681302364}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.25, y: -1.003, z: -6}
-  m_LocalScale: {x: 10, y: 1, z: 10}
+  m_LocalScale: {x: 522.06, y: 1, z: 5296.3594}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
@@ -792,7 +792,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 687895706}
-  m_LocalRotation: {x: 0.40959755, y: -0.000000022198623, z: 0.000000009966938, w: 0.9122664}
+  m_LocalRotation: {x: 0.40959755, y: 0.000000022198636, z: -0.000000009966944, w: 0.9122664}
   m_LocalPosition: {x: 0, y: 2.4999998, z: 0.79999924}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -873,7 +873,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 791689914}
-  m_LocalRotation: {x: 0.42612344, y: 0.000000011167669, z: -0.0000000052602944, w: 0.90466505}
+  m_LocalRotation: {x: 0.4261234, y: -1.630628e-15, z: 1.0244039e-15, w: 0.9046651}
   m_LocalPosition: {x: 0, y: 2.4999998, z: 0.79999924}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -1867,7 +1867,6 @@ GameObject:
   - component: {fileID: 1870605598}
   - component: {fileID: 1870605597}
   - component: {fileID: 1870605596}
-  - component: {fileID: 1870605599}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1917,10 +1916,66 @@ MonoBehaviour:
   m_ControlsChangedEvent:
     m_PersistentCalls:
       m_Calls: []
-  m_ActionEvents: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1870605594}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 36a8aed4-e71f-42bd-8524-8dadcc6ed85c
+    m_ActionName: PlayerMove/Move[/XInputControllerWindows/leftStick,/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 45d5947d-fa56-451d-838d-4bfa8ae32ef4
+    m_ActionName: PlayerMove/Look[/XInputControllerWindows/rightStick,/Mouse/delta]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d3f247a1-baa1-4c64-a4e1-92f4abbdca5e
+    m_ActionName: PlayerMove/Jump[/Keyboard/space,/XInputControllerWindows/buttonSouth]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0e4aa32e-9b9f-4cfc-9cef-174986c25e20
+    m_ActionName: PlayerMove/Aim[/Mouse/rightButton,/XInputControllerWindows/leftTrigger]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: fe51e92d-b91e-4077-a49e-f3218ebd2eb5
+    m_ActionName: PlayerMove/Interact[/Keyboard/q,/XInputControllerWindows/buttonWest]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: cb25058e-99bb-49ee-98d2-60aeeb11abbd
+    m_ActionName: PlayerJump/Move[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow,/XInputControllerWindows/leftStick]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 7e643789-4ee0-4238-91f8-08b7eebe8310
+    m_ActionName: PlayerJump/Look[/XInputControllerWindows/rightStick,/Mouse/delta]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0c2bf6fe-9d9b-4acd-93a4-a75dfcf529b0
+    m_ActionName: PlayerAim/Move[/XInputControllerWindows/leftStick,/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 1918b09a-e587-4e7d-b331-80c373576e53
+    m_ActionName: PlayerAim/Look[/Mouse/delta,/XInputControllerWindows/rightStick]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 73a2acd3-ce93-4109-b347-caa18064aa3c
+    m_ActionName: PlayerAim/Fire[/Mouse/leftButton,/XInputControllerWindows/rightTrigger]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c0eee472-fabb-4a86-840c-36c76cb1bd48
+    m_ActionName: PlayerAim/Aim[/Mouse/rightButton,/XInputControllerWindows/leftTrigger]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Keyboard&Mouse
-  m_DefaultActionMap: PlayerMove
+  m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!114 &1870605597
@@ -1964,6 +2019,8 @@ MonoBehaviour:
   verticalVelocity: 0
   gravity: 14
   jumpForce: 5
+  groundCheckWaitTime: 0.5
+  timer: 0
 --- !u!143 &1870605598
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1982,25 +2039,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!95 &1870605599
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1870605594}
-  m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: e7af6c0c072e60f4e826e657db728949, type: 3}
-  m_Controller: {fileID: 9100000, guid: 0e46b391db209fa43b0d272f6d8c231b, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 1
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &1917780715
 GameObject:
   m_ObjectHideFlags: 0

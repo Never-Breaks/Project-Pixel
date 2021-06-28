@@ -95,6 +95,10 @@ public class PlayerTest : MonoBehaviour
     public float verticalVelocity;
     public float gravity = 14.0f;
     public float jumpForce = 10.0f;
+    public float groundCheckWaitTime = 0.25f;
+    public float timer = 0f;
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -137,8 +141,50 @@ public class PlayerTest : MonoBehaviour
 
     public void OnMove(InputValue value)
     {
-        moveVal = value.Get<Vector2>();
+        if (playerInput.currentControlScheme == "GamePad")
+        {
+            moveVal = value.Get<Vector2>();
+            Debug.Log(moveVal);
+        }
+        else if (playerInput.currentControlScheme == "Keyboard&Mouse")
+        {
+            moveVal = value.Get<Vector2>();
+            Debug.Log(moveVal);
+
+            //if (Keyboard.current.aKey.isPressed && !Keyboard.current.dKey.isPressed)
+            //{
+            //    moveVal.x = -1f;
+            //}
+
+            //else if (Keyboard.current.dKey.isPressed && !Keyboard.current.aKey.isPressed)
+            //{
+            //    moveVal.x = 1f;
+            //}
+
+            //else
+            //{
+            //    moveVal.x = 0;
+            //}
+
+            //if (Keyboard.current.wKey.isPressed && !Keyboard.current.sKey.isPressed)
+            //{
+            //    moveVal.y = 1f;
+            //}
+
+            //else if (Keyboard.current.sKey.isPressed && !Keyboard.current.wKey.isPressed)
+            //{
+            //    moveVal.y = -1f;
+            //}
+
+            //else
+            //{
+            //    moveVal.y = 0;
+            //}
+
+
+        }
     }
+
 
     public void OnLook(InputValue value)
     {
@@ -157,11 +203,13 @@ public class PlayerTest : MonoBehaviour
         {
             verticalVelocity = jumpForce;
 
-            //switch controls to jump mode
-            playerInput.SwitchCurrentActionMap("PlayerJump");
+            timer = groundCheckWaitTime;
 
             //switch playerstate to jumping
             playerState = PlayerState.Jumping;
+
+            ////switch controls to jump mode
+            //playerInput.SwitchCurrentActionMap("PlayerJump");
         }
     }
 
@@ -196,27 +244,6 @@ public class PlayerTest : MonoBehaviour
         {
             case PlayerState.Default:
 
-                #region Camera Control
-
-                wantedVelocity = lookVal * new Vector2(mouseSensitivityX, mouseSensitivityY);
-
-                //slowy accelerate to a velocity. this is for camera smoothing
-                velocity = new Vector2(
-                    Mathf.MoveTowards(velocity.x, wantedVelocity.x, acceleration.x * Time.deltaTime),
-                    Mathf.MoveTowards(velocity.y, wantedVelocity.y, acceleration.y * Time.deltaTime));
-
-                //camera pitch rotation clamped to a min and max value
-                newCameraRot.x += sensitivityY * -velocity.y /*lookVal.y*/ * Time.deltaTime;
-                newCameraRot.x = Mathf.Clamp(newCameraRot.x, viewClampYmin, viewClampYmax);
-
-                //camera yaw rotation 
-                newCameraRot.y += sensitivityX * velocity.x /*lookVal.x*/ * Time.deltaTime;
-
-                //rotate the cameralook at with the cameras new rotation
-                cameraLookAt.localRotation = Quaternion.Euler(newCameraRot);
-
-                #endregion
-
                 #region Player Movement 
 
                 isGrounded = cc.isGrounded;
@@ -230,7 +257,6 @@ public class PlayerTest : MonoBehaviour
                     verticalVelocity -= gravity * Time.deltaTime;
                 
                 }
-                direction = new Vector3(moveVal.x, 0, moveVal.y).normalized;
 
                 if (direction.magnitude >= 0.1f)
                 {
@@ -261,9 +287,9 @@ public class PlayerTest : MonoBehaviour
 
                 #region Player Movement
 
-                verticalVelocity -= gravity * Time.deltaTime;
+                isGrounded = cc.isGrounded;
 
-                direction = new Vector3(moveVal.x, 0, moveVal.y).normalized;
+                verticalVelocity -= gravity * Time.deltaTime;
 
                 if (direction.magnitude >= 0.1f)
                 {
@@ -293,6 +319,31 @@ public class PlayerTest : MonoBehaviour
                 break;
             case PlayerState.Aiming:
 
+                Ray rayOrigin = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+                RaycastHit hitInfo;
+
+                if(Physics.Raycast(rayOrigin, out hitInfo, 5f))
+                {
+                    if (hitInfo.collider != null)
+                    {
+                        Debug.Log("hitting");
+                        Vector3 d = hitInfo.point - transform.position;
+                        Debug.DrawRay(transform.position, d, Color.green);
+                    }
+
+                }
+
+                break;
+        }
+    }
+
+    void Update()
+    {
+        // Debug.Log(playerInput.currentActionMap);
+
+        switch (playerState)
+        {
+            case PlayerState.Default:
                 #region Camera Control
 
                 wantedVelocity = lookVal * new Vector2(mouseSensitivityX, mouseSensitivityY);
@@ -315,42 +366,18 @@ public class PlayerTest : MonoBehaviour
                 #endregion
 
 
-                Ray rayOrigin = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-                RaycastHit hitInfo;
+                // Debug.Log(playerInput.currentActionMap);
+                direction = new Vector3(moveVal.x, 0, moveVal.y).normalized;
 
-                if(Physics.Raycast(rayOrigin, out hitInfo, 5f))
-                {
-                    if (hitInfo.collider != null)
-                    {
-                        Debug.Log("hitting");
-                        Vector3 d = hitInfo.point - transform.position;
-                        Debug.DrawRay(transform.position, d, Color.green);
-                    }
 
-                }
-
-                break;
-        }
-    }
-
-    void Update()
-    {
-       // Debug.Log(playerInput.currentActionMap);
-
-        switch (playerState)
-        {
-            case PlayerState.Default:
-               // Debug.Log(playerInput.currentActionMap);
-
-            
 
                 //if the aim button is fuly pressed
                 if (aimVal >= 1f)
                 {
                     //switch cinemachine cam to aiming cam
 
-                    //switch controls to aim mode
-                    playerInput.SwitchCurrentActionMap("PlayerAim");
+                    ////switch controls to aim mode
+                    //playerInput.SwitchCurrentActionMap("PlayerAim");
 
                     //switch playerstate to aiming
                     playerState = PlayerState.Aiming;
@@ -359,25 +386,66 @@ public class PlayerTest : MonoBehaviour
 
             case PlayerState.Jumping:
 
-                //if the player has grounded
-                if (isGrounded)
-                {
-                    Debug.Log("yessir");
-                    //switch controls to default mode
-                    playerInput.SwitchCurrentActionMap("PlayerMove");
+                #region Camera Control
 
-                    //switch playerstate to default
-                    playerState = PlayerState.Default;
+                wantedVelocity = lookVal * new Vector2(mouseSensitivityX, mouseSensitivityY);
+
+                //slowy accelerate to a velocity. this is for camera smoothing
+                velocity = new Vector2(
+                    Mathf.MoveTowards(velocity.x, wantedVelocity.x, acceleration.x * Time.deltaTime),
+                    Mathf.MoveTowards(velocity.y, wantedVelocity.y, acceleration.y * Time.deltaTime));
+
+                //camera pitch rotation clamped to a min and max value
+                newCameraRot.x += sensitivityY * -velocity.y /*lookVal.y*/ * Time.deltaTime;
+                newCameraRot.x = Mathf.Clamp(newCameraRot.x, viewClampYmin, viewClampYmax);
+
+                //camera yaw rotation 
+                newCameraRot.y += sensitivityX * velocity.x /*lookVal.x*/ * Time.deltaTime;
+
+                //rotate the cameralook at with the cameras new rotation
+                cameraLookAt.localRotation = Quaternion.Euler(newCameraRot);
+
+                #endregion
+
+
+                direction = new Vector3(moveVal.x, 0, moveVal.y).normalized;
+
+                timer -= Time.deltaTime;
+
+               if(timer <= 0)
+                {
+                    timer = 0;
+                    if (isGrounded)
+                    {
+                        //switch playerstate to default
+                        playerState = PlayerState.Default;
+
+                        ////switch controls to default mode
+                        //playerInput.SwitchCurrentActionMap("PlayerMove");
+                    }
                 }
                 break;
 
             case PlayerState.Aiming:
 
-                #region Player Movement
+                #region Camera Control
 
-                //player rotates with camera on yaw
-                
-                //player moves left right forward and backwards
+                wantedVelocity = lookVal * new Vector2(mouseSensitivityX, mouseSensitivityY);
+
+                //slowy accelerate to a velocity. this is for camera smoothing
+                velocity = new Vector2(
+                    Mathf.MoveTowards(velocity.x, wantedVelocity.x, acceleration.x * Time.deltaTime),
+                    Mathf.MoveTowards(velocity.y, wantedVelocity.y, acceleration.y * Time.deltaTime));
+
+                //camera pitch rotation clamped to a min and max value
+                newCameraRot.x += sensitivityY * -velocity.y /*lookVal.y*/ * Time.deltaTime;
+                newCameraRot.x = Mathf.Clamp(newCameraRot.x, viewClampYmin, viewClampYmax);
+
+                //camera yaw rotation 
+                newCameraRot.y += sensitivityX * velocity.x /*lookVal.x*/ * Time.deltaTime;
+
+                //rotate the cameralook at with the cameras new rotation
+                cameraLookAt.localRotation = Quaternion.Euler(newCameraRot);
 
                 #endregion
 
@@ -386,8 +454,8 @@ public class PlayerTest : MonoBehaviour
                 {
                     //switch cinemachine cam to default cam
 
-                    //switch controls to default mode
-                    playerInput.SwitchCurrentActionMap("PlayerMove");
+                    ////switch controls to default mode
+                    //playerInput.SwitchCurrentActionMap("PlayerMove");
 
                     //switch playerstate to default
                     playerState = PlayerState.Default;
