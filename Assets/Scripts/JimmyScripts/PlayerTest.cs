@@ -113,11 +113,17 @@ public class PlayerTest : MonoBehaviour
 
     Animator anim;
 
+    public float attackVal;
+
     public float verticalVelocity;
     public float gravity = 14.0f;
     public float jumpForce = 10.0f;
     public float groundCheckWaitTime = 0.25f;
     public float timer = 0f;
+
+    public bool isAttacking = false;
+
+    public bool isJumping = false;
 
 
 
@@ -223,7 +229,7 @@ public class PlayerTest : MonoBehaviour
 
     public void OnFire(InputValue value)
     {
-        Debug.Log("fire");
+        attackVal = value.Get<float>();
     }
 
     public void OnControlsChanged()
@@ -283,7 +289,27 @@ public class PlayerTest : MonoBehaviour
                     cc.Move(direction  * Time.deltaTime);
                 }
 
-                #endregion                
+                #endregion
+
+                #region Player Attack
+
+                if(attackVal >= 0.5f)
+                {
+                    #region Player Rotation
+                    //smooth angle for player rotation
+                    float defaultRotateAngleSmooth = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, Camera.main.transform.localEulerAngles.y, ref turnSmoothVelocity, turnSmoothTime);
+
+                    //rotate model by smooth angle so follow target doesnt also rotate
+                    model.transform.rotation = Quaternion.Euler(0f, defaultRotateAngleSmooth, 0f);
+                    #endregion                   
+                }
+                else if(attackVal < 0.5f)
+                {
+
+                }
+
+                #endregion
+
                 break;
             case PlayerState.Jumping:
 
