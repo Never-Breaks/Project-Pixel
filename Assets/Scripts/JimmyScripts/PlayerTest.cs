@@ -7,7 +7,11 @@ using UnityEngine.InputSystem;
 public class PlayerTest : MonoBehaviour
 {
     //player speed
-    public float speed = 10.0f;
+    public float speed;
+
+    public float defaultWalkSpeed = 5f;
+
+    public float aimWalkSpeed = 2;
 
     //movement input from keyboard or joystick
     public Vector2 moveVal;
@@ -51,14 +55,22 @@ public class PlayerTest : MonoBehaviour
     //mouse sensitivity on x axis
     public float mouseSensitivityX;
 
+    public float mouseAimSensitivityX;
+
     //mouse sensitivity on y axis
     public float mouseSensitivityY;
+
+    public float mouseAimSensitivityY;
 
     //controller sensitivity on x axis
     public float controllerSensitivityX;
 
+    public float controllerAimSensitivityX;
+
     //controller sensitivity on y axis
     public float controllerSensitivityY;
+
+    public float controllerAimSensitivityY;
 
     //holds sensitivity on x axis of either controller or mouse depending on input
     public float sensitivityX;
@@ -112,7 +124,8 @@ public class PlayerTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log(this.transform.childCount);
+        speed = defaultWalkSpeed;
+
         //get character controller component
         cc = GetComponent<CharacterController>();
 
@@ -143,19 +156,21 @@ public class PlayerTest : MonoBehaviour
 
         //lock cursor to center of screen;
         Cursor.lockState = CursorLockMode.Locked;
-        aimCam.gameObject.SetActive(false);
+
+        defaultCam.SetActive(true);
+        aimCam.SetActive(false);
 
         //if you are using a gamepad set sensititvity to controller's sensitivity settings
         if (playerInput.currentControlScheme == "GamePad")
         {
             sensitivityX = controllerSensitivityX;
-            sensitivityY = controllerSensitivityY;
+            sensitivityY = controllerSensitivityY;           
         }
         //otherwise use mouse's sensitivity settings
-        else
+        else if (playerInput.currentControlScheme == "Keyboard&Mouse")
         {
             sensitivityX = mouseSensitivityX;
-            sensitivityY = mouseSensitivityY;
+            sensitivityY = mouseSensitivityY;          
         }
 
     }
@@ -216,12 +231,12 @@ public class PlayerTest : MonoBehaviour
         if (playerInput.currentControlScheme == "GamePad")
         {
             sensitivityX = controllerSensitivityX;
-            sensitivityY = controllerSensitivityY;
+            sensitivityY = controllerSensitivityY;  
         }
-        else
-        {
+        else if (playerInput.currentControlScheme == "Keyboard&Mouse")
+        {   
             sensitivityX = mouseSensitivityX;
-            sensitivityY = mouseSensitivityY;
+            sensitivityY = mouseSensitivityY;     
         }
     }
 
@@ -304,22 +319,38 @@ public class PlayerTest : MonoBehaviour
                 #endregion
 
                 break;
-            case PlayerState.Aiming: 
+            case PlayerState.Aiming:
 
-                Ray rayOrigin = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-                RaycastHit hitInfo;
+                if (playerInput.currentControlScheme == "Keyboard&Mouse")
+                {
+                    Debug.Log(Mouse.current.position.ReadValue());
+                    Ray rayOrigin = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+                    RaycastHit hitInfo;
 
-                if(Physics.Raycast(rayOrigin, out hitInfo, 100f))
+                    if (Physics.Raycast(rayOrigin, out hitInfo, 100f))
+                    {
+
+                        if (hitInfo.collider != null)
+                        {
+                            Debug.Log("hitting");
+                            Vector3 d = hitInfo.point - transform.position;
+                            Debug.DrawRay(transform.position, d, Color.green);
+                        }
+
+                    }
+                }
+                else if(playerInput.currentControlScheme == "GamePad")
                 {
 
-                    if (hitInfo.collider != null)
-                    {
-                        Debug.Log("hitting");
-                        Vector3 d = hitInfo.point - transform.position;
-                        Debug.DrawRay(transform.position, d, Color.green);
-                    }
-
                 }
+
+                #region Player Rotation
+                //smooth angle for player rotation
+                float aimRotateAngleSmooth = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, Camera.main.transform.localEulerAngles.y, ref turnSmoothVelocity, turnSmoothTime);
+
+                //rotate model by smooth angle so follow target doesnt also rotate
+                model.transform.rotation = Quaternion.Euler(0f, aimRotateAngleSmooth, 0f);
+                #endregion
 
                 #region Player Movement 
 
@@ -339,16 +370,12 @@ public class PlayerTest : MonoBehaviour
                 {
                     //get angle to see how much we need to rotate on y axis from moving relative to camera
                     float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.transform.eulerAngles.y;
-                    //smooth angle for player rotation
-                    float angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
-
-                    //rotate model by smooth angle so follow target doesnt also rotate
-                    model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
-
+                    
                     //turn rotation to direction. direction you want to move in
                     Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
 
                     Vector3 move = moveDirection.normalized * speed;
+
                     //move
                     cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.deltaTime);
                 }
@@ -371,9 +398,10 @@ public class PlayerTest : MonoBehaviour
         switch (playerState)
         {
             case PlayerState.Default:
+
                 #region Camera Control
 
-                wantedVelocity = lookVal * new Vector2(mouseSensitivityX, mouseSensitivityY);
+                wantedVelocity = lookVal * new Vector2(sensitivityX, sensitivityY);
 
                 //slowy accelerate to a velocity. this is for camera smoothing
                 velocity = new Vector2(
@@ -391,11 +419,6 @@ public class PlayerTest : MonoBehaviour
                 defaultCameraFollowTarget.transform.localRotation = Quaternion.Euler(newCameraRot);
 
                 #endregion
-
-
-                // Debug.Log(playerInput.currentActionMap);
-                direction = new Vector3(moveVal.x, 0, moveVal.y);
-                Debug.Log(direction);
 
                 #region Animation
                 if (playerInput.currentControlScheme == "GamePad")
@@ -535,7 +558,7 @@ public class PlayerTest : MonoBehaviour
                     {
                         anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
                     }
-                    
+
                     //top right movement on keyboard
                     else if (direction.x > 0 && direction.z > 0)
                     {
@@ -569,9 +592,25 @@ public class PlayerTest : MonoBehaviour
 
                 #endregion
 
+                // Debug.Log(playerInput.currentActionMap);
+                direction = new Vector3(moveVal.x, 0, moveVal.y);
+                
                 //if the aim button is fuly pressed
                 if (aimVal >= 1f)
                 {
+                    speed = aimWalkSpeed;
+
+                    if (playerInput.currentControlScheme == "GamePad")
+                    {
+                        sensitivityX = controllerAimSensitivityX;
+                        sensitivityY = controllerAimSensitivityY;
+                    }
+                    else if (playerInput.currentControlScheme == "Keyboard&Mouse")
+                    {
+                        sensitivityX = mouseAimSensitivityX;
+                        sensitivityY = mouseAimSensitivityY;
+                    }
+
                     //switch cinemachine cam to aiming cam
                     defaultCam.gameObject.SetActive(false);
                     aimCam.gameObject.SetActive(true);
@@ -587,7 +626,7 @@ public class PlayerTest : MonoBehaviour
 
                 #region Camera Control
 
-                wantedVelocity = lookVal * new Vector2(mouseSensitivityX, mouseSensitivityY);
+                wantedVelocity = lookVal * new Vector2(sensitivityX, sensitivityY);
 
                 //slowy accelerate to a velocity. this is for camera smoothing
                 velocity = new Vector2(
@@ -629,7 +668,7 @@ public class PlayerTest : MonoBehaviour
 
                 #region Camera Control
 
-                wantedVelocity = lookVal * new Vector2(mouseSensitivityX, mouseSensitivityY);
+                wantedVelocity = lookVal * new Vector2(sensitivityX, sensitivityY);
 
                 //slowy accelerate to a velocity. this is for camera smoothing
                 velocity = new Vector2(
@@ -649,14 +688,25 @@ public class PlayerTest : MonoBehaviour
                 #endregion
 
                 direction = new Vector3(moveVal.x, 0, moveVal.y);
-                Debug.Log(direction);
-
                 //if the aim button is released
                 if (aimVal < 0.5f)
                 {
+                    speed = defaultWalkSpeed;
+
+                    if (playerInput.currentControlScheme == "GamePad")
+                    {
+                        sensitivityX = controllerSensitivityX;
+                        sensitivityY = controllerSensitivityY;
+                    }
+                    else if (playerInput.currentControlScheme == "Keyboard&Mouse")
+                    {
+                        sensitivityX = mouseSensitivityX;
+                        sensitivityY = mouseSensitivityY;
+                    }
+
                     //switch cinemachine cam to default cam
-                    defaultCam.gameObject.SetActive(true);
-                    aimCam.gameObject.SetActive(false);
+                    defaultCam.SetActive(true);
+                    aimCam.SetActive(false);
 
                     ////switch controls to default mode
                     //playerInput.SwitchCurrentActionMap("PlayerMove");
