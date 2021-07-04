@@ -34,10 +34,16 @@ public class PlayerTest : MonoBehaviour
     public bool isGrounded;
 
     //follow target's transform
-    public Transform cameraLookAt;
+    public GameObject defaultCameraFollowTarget;
+
+    public GameObject aimCameraFollowTarget;
 
     //main camera's transform
-    public Transform mainCam;
+    public GameObject mainCam;
+
+    public GameObject aimCam;
+
+    public GameObject defaultCam;
 
     //new rotation for camera
     public Vector3 newCameraRot;
@@ -90,7 +96,10 @@ public class PlayerTest : MonoBehaviour
     //the wanted velocity when moving the mouse or joystick
     Vector2 wantedVelocity;
 
+    //movement direction normalized
     Vector3 direction;
+
+    Animator anim;
 
     public float verticalVelocity;
     public float gravity = 14.0f;
@@ -103,6 +112,7 @@ public class PlayerTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log(this.transform.childCount);
         //get character controller component
         cc = GetComponent<CharacterController>();
 
@@ -112,17 +122,28 @@ public class PlayerTest : MonoBehaviour
         //get PlayerInput component
         playerInput = GetComponent<PlayerInput>();
 
-        //set the camera's rotation to the follow target's rotationn
-        newCameraRot = cameraLookAt.localRotation.eulerAngles;
-
         //get model
-        model = this.transform.GetChild(0).gameObject;
+        model = this.gameObject.transform.GetChild(0).gameObject;
 
         //get main cam
-        mainCam = this.transform.GetChild(1);
+        mainCam = this.transform.GetChild(1).gameObject;
+
+        defaultCam = this.gameObject.transform.GetChild(2).gameObject;
+
+        aimCam = this.gameObject.transform.GetChild(3).gameObject;
+
+        defaultCameraFollowTarget = this.gameObject.transform.GetChild(4).gameObject;
+
+        aimCameraFollowTarget = this.gameObject.transform.GetChild(5).gameObject;
+
+        //set the camera's rotation to the follow target's rotationn
+        newCameraRot = defaultCameraFollowTarget.transform.localRotation.eulerAngles;
+
+        anim = GetComponent<Animator>();
 
         //lock cursor to center of screen;
         Cursor.lockState = CursorLockMode.Locked;
+        aimCam.gameObject.SetActive(false);
 
         //if you are using a gamepad set sensititvity to controller's sensitivity settings
         if (playerInput.currentControlScheme == "GamePad")
@@ -144,44 +165,10 @@ public class PlayerTest : MonoBehaviour
         if (playerInput.currentControlScheme == "GamePad")
         {
             moveVal = value.Get<Vector2>();
-            Debug.Log(moveVal);
         }
         else if (playerInput.currentControlScheme == "Keyboard&Mouse")
         {
             moveVal = value.Get<Vector2>();
-            Debug.Log(moveVal);
-
-            //if (Keyboard.current.aKey.isPressed && !Keyboard.current.dKey.isPressed)
-            //{
-            //    moveVal.x = -1f;
-            //}
-
-            //else if (Keyboard.current.dKey.isPressed && !Keyboard.current.aKey.isPressed)
-            //{
-            //    moveVal.x = 1f;
-            //}
-
-            //else
-            //{
-            //    moveVal.x = 0;
-            //}
-
-            //if (Keyboard.current.wKey.isPressed && !Keyboard.current.sKey.isPressed)
-            //{
-            //    moveVal.y = 1f;
-            //}
-
-            //else if (Keyboard.current.sKey.isPressed && !Keyboard.current.wKey.isPressed)
-            //{
-            //    moveVal.y = -1f;
-            //}
-
-            //else
-            //{
-            //    moveVal.y = 0;
-            //}
-
-
         }
     }
 
@@ -261,7 +248,7 @@ public class PlayerTest : MonoBehaviour
                 if (direction.magnitude >= 0.1f)
                 {
                     //get angle to see how much we need to rotate on y axis from moving relative to camera
-                    float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.eulerAngles.y;
+                    float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.transform.eulerAngles.y;
                     //smooth angle for player rotation
                     float angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
 
@@ -294,7 +281,7 @@ public class PlayerTest : MonoBehaviour
                 if (direction.magnitude >= 0.1f)
                 {
                     //get angle to see how much we need to rotate on y axis from moving relative to camera
-                    float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.eulerAngles.y;
+                    float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.transform.eulerAngles.y;
                     //smooth angle for player rotation
                     float angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
 
@@ -317,13 +304,14 @@ public class PlayerTest : MonoBehaviour
                 #endregion
 
                 break;
-            case PlayerState.Aiming:
+            case PlayerState.Aiming: 
 
                 Ray rayOrigin = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
                 RaycastHit hitInfo;
 
-                if(Physics.Raycast(rayOrigin, out hitInfo, 5f))
+                if(Physics.Raycast(rayOrigin, out hitInfo, 100f))
                 {
+
                     if (hitInfo.collider != null)
                     {
                         Debug.Log("hitting");
@@ -332,6 +320,45 @@ public class PlayerTest : MonoBehaviour
                     }
 
                 }
+
+                #region Player Movement 
+
+                isGrounded = cc.isGrounded;
+
+                if (isGrounded)
+                {
+                    verticalVelocity = -gravity * Time.deltaTime;
+                }
+                else
+                {
+                    verticalVelocity -= gravity * Time.deltaTime;
+
+                }
+
+                if (direction.magnitude >= 0.1f)
+                {
+                    //get angle to see how much we need to rotate on y axis from moving relative to camera
+                    float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.transform.eulerAngles.y;
+                    //smooth angle for player rotation
+                    float angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
+
+                    //rotate model by smooth angle so follow target doesnt also rotate
+                    model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+                    //turn rotation to direction. direction you want to move in
+                    Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+
+                    Vector3 move = moveDirection.normalized * speed;
+                    //move
+                    cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.deltaTime);
+                }
+                else
+                {
+                    direction = new Vector3(0, verticalVelocity, 0);
+                    cc.Move(direction * Time.deltaTime);
+                }
+
+                #endregion   
 
                 break;
         }
@@ -361,23 +388,195 @@ public class PlayerTest : MonoBehaviour
                 newCameraRot.y += sensitivityX * velocity.x /*lookVal.x*/ * Time.deltaTime;
 
                 //rotate the cameralook at with the cameras new rotation
-                cameraLookAt.localRotation = Quaternion.Euler(newCameraRot);
+                defaultCameraFollowTarget.transform.localRotation = Quaternion.Euler(newCameraRot);
 
                 #endregion
 
 
                 // Debug.Log(playerInput.currentActionMap);
-                direction = new Vector3(moveVal.x, 0, moveVal.y).normalized;
+                direction = new Vector3(moveVal.x, 0, moveVal.y);
+                Debug.Log(direction);
 
+                #region Animation
+                if (playerInput.currentControlScheme == "GamePad")
+                {
+                    //top right movement on joystick
+                    if (direction.x > 0f && direction.z > 0f)
+                    {
+                        if (direction.x > direction.z)
+                        {
+                            if (direction.x > 0.7f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                            }
+                        }
+                        else if (direction.z > direction.x)
+                        {
+                            if (direction.z > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                            }
+                        }
+                    }
 
+                    //top left movement on joystick
+                    else if (direction.x < 0f && direction.z > 0f)
+                    {
+                        if (-direction.x > direction.z)
+                        {
+                            if (-direction.x > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                            }
+                        }
+                        else if (direction.z > -direction.x)
+                        {
+                            if (direction.z > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                            }
+                        }
+                    }
+
+                    //bottom right movement on joystick
+                    else if (direction.x > 0f && direction.z < 0f)
+                    {
+                        if (direction.x > -direction.z)
+                        {
+                            if (direction.x > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                            }
+                        }
+                        else if (-direction.z > direction.x)
+                        {
+                            if (-direction.z > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                            }
+                        }
+                    }
+
+                    //bottom left movement on joystick
+                    else if (direction.x < 0f && direction.z < 0f)
+                    {
+                        if (-direction.x > -direction.z)
+                        {
+                            if (-direction.x > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                            }
+                        }
+                        else if (-direction.z > -direction.x)
+                        {
+                            if (-direction.z > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                            }
+                        }
+                    }
+
+                    //no joystick movement
+                    else if (direction.x == 0 && direction.z == 0)
+                    {
+                        anim.SetFloat("MoveVal", 0, 0.1f, Time.deltaTime);
+                    }
+                }
+                else if (playerInput.currentControlScheme == "Keyboard&Mouse")
+                {
+                    //left and right on keyboard
+                    if (direction.x > 0f && direction.z == 0)
+                    {
+                        anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                    }
+                    else if (direction.x < 0f && direction.z == 0)
+                    {
+                        anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                    }
+
+                    //forwards and backwards on keyboard
+                    else if (direction.z > 0f && direction.x == 0)
+                    {
+                        anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                    }
+                    else if (direction.z < 0f && direction.x == 0)
+                    {
+                        anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                    }
+                    
+                    //top right movement on keyboard
+                    else if (direction.x > 0 && direction.z > 0)
+                    {
+                        anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                    }
+
+                    //bottom right movement on keyboard
+                    else if (direction.x > 0 && direction.z < 0)
+                    {
+                        anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                    }
+
+                    //top left movement on keyboard
+                    else if (direction.x < 0 && direction.z > 0)
+                    {
+                        anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                    }
+
+                    //bottom left movement on keyboard
+                    else if (direction.x < 0 && direction.z < 0)
+                    {
+                        anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                    }
+
+                    //no movement on keyboard
+                    else if (direction.x == 0 && direction.z == 0)
+                    {
+                        anim.SetFloat("MoveVal", 0, 0.1f, Time.deltaTime);
+                    }
+                }
+
+                #endregion
 
                 //if the aim button is fuly pressed
                 if (aimVal >= 1f)
                 {
                     //switch cinemachine cam to aiming cam
+                    defaultCam.gameObject.SetActive(false);
+                    aimCam.gameObject.SetActive(true);
 
-                    ////switch controls to aim mode
-                    //playerInput.SwitchCurrentActionMap("PlayerAim");
+                    aimCameraFollowTarget.transform.localRotation = defaultCameraFollowTarget.transform.localRotation;
 
                     //switch playerstate to aiming
                     playerState = PlayerState.Aiming;
@@ -403,12 +602,12 @@ public class PlayerTest : MonoBehaviour
                 newCameraRot.y += sensitivityX * velocity.x /*lookVal.x*/ * Time.deltaTime;
 
                 //rotate the cameralook at with the cameras new rotation
-                cameraLookAt.localRotation = Quaternion.Euler(newCameraRot);
+                defaultCameraFollowTarget.transform.localRotation = Quaternion.Euler(newCameraRot);
 
                 #endregion
 
 
-                direction = new Vector3(moveVal.x, 0, moveVal.y).normalized;
+                direction = new Vector3(moveVal.x, 0, moveVal.y);
 
                 timer -= Time.deltaTime;
 
@@ -445,14 +644,19 @@ public class PlayerTest : MonoBehaviour
                 newCameraRot.y += sensitivityX * velocity.x /*lookVal.x*/ * Time.deltaTime;
 
                 //rotate the cameralook at with the cameras new rotation
-                cameraLookAt.localRotation = Quaternion.Euler(newCameraRot);
+                aimCameraFollowTarget.transform.localRotation = Quaternion.Euler(newCameraRot);
 
                 #endregion
+
+                direction = new Vector3(moveVal.x, 0, moveVal.y);
+                Debug.Log(direction);
 
                 //if the aim button is released
                 if (aimVal < 0.5f)
                 {
                     //switch cinemachine cam to default cam
+                    defaultCam.gameObject.SetActive(true);
+                    aimCam.gameObject.SetActive(false);
 
                     ////switch controls to default mode
                     //playerInput.SwitchCurrentActionMap("PlayerMove");
@@ -463,23 +667,4 @@ public class PlayerTest : MonoBehaviour
                 break;       
         }
     }
-
-    //public bool CheckForGround()
-    //{
-    //    Vector3 dir = Vector3.down;
-    //    float dist = 5f;
-    //    RaycastHit hit;
-
-    //    if (Physics.Raycast(transform.position, dir, out hit, dist))
-    //    {
-    //        if(hit.collider.gameObject.CompareTag("Ground"))
-    //        {
-    //            //if ray hits ground return true
-    //            return true;
-    //        }
-    //    }
-
-    //    return false;
-       
-    //}
 }
