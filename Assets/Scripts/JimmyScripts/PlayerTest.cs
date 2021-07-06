@@ -99,6 +99,8 @@ public class PlayerTest : MonoBehaviour
     //player rotation smoothing time
     public float turnSmoothTime = 0.05f;
 
+    public float attackSmoothTime = 0.01f;
+
     //rplayer otation smoothing  velocity
     public float turnSmoothVelocity;
 
@@ -201,24 +203,27 @@ public class PlayerTest : MonoBehaviour
         if (playerInput.currentControlScheme == "Keyboard&Mouse")
         {
             lookVal *= 0.5f;
-            lookVal *= 0.1f;
+            lookVal *= 1;
+
+            Debug.Log(lookVal);
         }
     }
 
     public void OnJump (InputValue value)
     {
+        #region Jumping
         if (isGrounded)
         {
+            //add jump force to our vertical velocity
             verticalVelocity = jumpForce;
 
+            //set timer to ground check waiting time
             timer = groundCheckWaitTime;
 
             //switch playerstate to jumping
             playerState = PlayerState.Jumping;
-
-            ////switch controls to jump mode
-            //playerInput.SwitchCurrentActionMap("PlayerJump");
         }
+        #endregion
     }
 
     public void OnAim(InputValue value)
@@ -229,11 +234,13 @@ public class PlayerTest : MonoBehaviour
 
     public void OnFire(InputValue value)
     {
+        //update attackval
         attackVal = value.Get<float>();
     }
 
     public void OnControlsChanged()
     {
+        #region Sensitivity Update
         if (playerInput.currentControlScheme == "GamePad")
         {
             sensitivityX = controllerSensitivityX;
@@ -244,6 +251,7 @@ public class PlayerTest : MonoBehaviour
             sensitivityX = mouseSensitivityX;
             sensitivityY = mouseSensitivityY;     
         }
+        #endregion
     }
 
     private void FixedUpdate()
@@ -265,7 +273,6 @@ public class PlayerTest : MonoBehaviour
                     verticalVelocity -= gravity * Time.deltaTime;
                 
                 }
-
                 if (direction.magnitude >= 0.1f)
                 {
                     //get angle to see how much we need to rotate on y axis from moving relative to camera
@@ -273,8 +280,21 @@ public class PlayerTest : MonoBehaviour
                     //smooth angle for player rotation
                     float angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
 
-                    //rotate model by smooth angle so follow target doesnt also rotate
-                    model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+                    //rotation of model when attacking or not attacking while moving
+                    if (!isAttacking)
+                    {
+                        //rotate model by smooth angle so follow target doesnt also rotate
+                        model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+                    }
+                    else if (isAttacking)
+                    {
+
+                        //smooth angle for player rotation
+                        float defaultRotateAngleSmooth = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, Camera.main.transform.localEulerAngles.y, ref turnSmoothVelocity, attackSmoothTime);
+
+                        //rotate model by smooth angle so follow target doesnt also rotate
+                        model.transform.rotation = Quaternion.Euler(0f, defaultRotateAngleSmooth, 0f);
+                    }
 
                     //turn rotation to direction. direction you want to move in
                     Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
@@ -285,27 +305,18 @@ public class PlayerTest : MonoBehaviour
                 }
                 else
                 {
+                    //rotation of model when attacking or not attacking while moving
+                    if (isAttacking)
+                    {
+                        //smooth angle for player rotation
+                        float defaultRotateAngleSmooth = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, Camera.main.transform.localEulerAngles.y, ref turnSmoothVelocity, attackSmoothTime);
+
+                        //rotate model by smooth angle so follow target doesnt also rotate
+                        model.transform.rotation = Quaternion.Euler(0f, defaultRotateAngleSmooth, 0f);
+                    }
+
                     direction = new Vector3(0, verticalVelocity, 0);
                     cc.Move(direction  * Time.deltaTime);
-                }
-
-                #endregion
-
-                #region Player Attack
-
-                if(attackVal >= 0.5f)
-                {
-                    #region Player Rotation
-                    //smooth angle for player rotation
-                    float defaultRotateAngleSmooth = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, Camera.main.transform.localEulerAngles.y, ref turnSmoothVelocity, turnSmoothTime);
-
-                    //rotate model by smooth angle so follow target doesnt also rotate
-                    model.transform.rotation = Quaternion.Euler(0f, defaultRotateAngleSmooth, 0f);
-                    #endregion                   
-                }
-                else if(attackVal < 0.5f)
-                {
-
                 }
 
                 #endregion
@@ -347,28 +358,49 @@ public class PlayerTest : MonoBehaviour
                 break;
             case PlayerState.Aiming:
 
+                #region Attack Raycasting
                 if (playerInput.currentControlScheme == "Keyboard&Mouse")
                 {
-                    Debug.Log(Mouse.current.position.ReadValue());
-                    Ray rayOrigin = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-                    RaycastHit hitInfo;
-
-                    if (Physics.Raycast(rayOrigin, out hitInfo, 100f))
+                    if (isAttacking)
                     {
+                        Ray rayOrigin = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+                        RaycastHit hitInfo;
 
-                        if (hitInfo.collider != null)
+                        if (Physics.Raycast(rayOrigin, out hitInfo, 100f))
                         {
-                            Debug.Log("hitting");
-                            Vector3 d = hitInfo.point - transform.position;
-                            Debug.DrawRay(transform.position, d, Color.green);
-                        }
 
+                            if (hitInfo.collider != null)
+                            {
+                                Debug.Log("hitting");
+                                Vector3 d = hitInfo.point - transform.position;
+                                Debug.DrawRay(transform.position, d, Color.green);
+                            }
+
+                        }
                     }
                 }
-                else if(playerInput.currentControlScheme == "GamePad")
+                else if (playerInput.currentControlScheme == "GamePad")
                 {
+                    if (isAttacking)
+                    {
+                        // Create a vector at the center of our camera's viewport
+                        Vector3 rayOrigin = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
 
+                        // Declare a raycast hit to store information about what our raycast has hit
+                        RaycastHit hit;
+
+                        // Check if our raycast has hit anything
+                        if (Physics.Raycast(rayOrigin, mainCam.transform.forward, out hit, 100f))
+                        {
+                            Vector3 d = hit.point - transform.position;
+
+                            // Rest of your code - what to do when raycast hits anything
+                            Debug.DrawRay(transform.position, d, Color.black);
+                        }
+                    
+                    }
                 }
+                #endregion
 
                 #region Player Rotation
                 //smooth angle for player rotation
@@ -400,6 +432,7 @@ public class PlayerTest : MonoBehaviour
                     //turn rotation to direction. direction you want to move in
                     Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
 
+                    //vector 3 of normalized movement input times speed
                     Vector3 move = moveDirection.normalized * speed;
 
                     //move
@@ -618,9 +651,10 @@ public class PlayerTest : MonoBehaviour
 
                 #endregion
 
-                // Debug.Log(playerInput.currentActionMap);
+                //update movement input
                 direction = new Vector3(moveVal.x, 0, moveVal.y);
-                
+
+                #region Aim Check
                 //if the aim button is fuly pressed
                 if (aimVal >= 1f)
                 {
@@ -638,14 +672,29 @@ public class PlayerTest : MonoBehaviour
                     }
 
                     //switch cinemachine cam to aiming cam
-                    defaultCam.gameObject.SetActive(false);
-                    aimCam.gameObject.SetActive(true);
+                    defaultCam.SetActive(false);
+                    aimCam.SetActive(true);
 
                     aimCameraFollowTarget.transform.localRotation = defaultCameraFollowTarget.transform.localRotation;
 
                     //switch playerstate to aiming
                     playerState = PlayerState.Aiming;
                 }
+                #endregion
+
+                #region Player Attack
+
+                if (attackVal >= 1f)
+                {
+                    isAttacking = true;                    
+                }
+                else if (attackVal < 0.5f)
+                {
+                    isAttacking = false;
+                }
+
+                #endregion
+
                 break;
 
             case PlayerState.Jumping:
@@ -671,11 +720,14 @@ public class PlayerTest : MonoBehaviour
 
                 #endregion
 
-
+                //update input direction
                 direction = new Vector3(moveVal.x, 0, moveVal.y);
 
+                #region Jump Grounded Check Delay
+                //decrease timer
                 timer -= Time.deltaTime;
 
+                //slight delay before checking if we are on the ground
                if(timer <= 0)
                 {
                     timer = 0;
@@ -688,6 +740,8 @@ public class PlayerTest : MonoBehaviour
                         //playerInput.SwitchCurrentActionMap("PlayerMove");
                     }
                 }
+                #endregion
+
                 break;
 
             case PlayerState.Aiming:
@@ -713,7 +767,10 @@ public class PlayerTest : MonoBehaviour
 
                 #endregion
 
+                //update movement input
                 direction = new Vector3(moveVal.x, 0, moveVal.y);
+
+                #region Aim Check
                 //if the aim button is released
                 if (aimVal < 0.5f)
                 {
@@ -740,6 +797,20 @@ public class PlayerTest : MonoBehaviour
                     //switch playerstate to default
                     playerState = PlayerState.Default;
                 }
+                #endregion
+
+                #region Player Attack
+
+                if (attackVal >= 1f)
+                {
+                    isAttacking = true;
+                }
+                else if (attackVal < 0.5f)
+                {
+                    isAttacking = false;
+                }
+                #endregion
+
                 break;       
         }
     }

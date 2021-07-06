@@ -2641,13 +2641,17 @@ MonoBehaviour:
   acceleration: {x: 2000, y: 2000}
   velocity: {x: 0, y: 0}
   turnSmoothTime: 0.05
+  attackSmoothTime: 0.01
   turnSmoothVelocity: 0
   model: {fileID: 0}
+  attackVal: 0
   verticalVelocity: 0
   gravity: 14
   jumpForce: 5
   groundCheckWaitTime: 0.5
   timer: 0
+  isAttacking: 0
+  isJumping: 0
 --- !u!143 &1870605598
 CharacterController:
   m_ObjectHideFlags: 0
