@@ -9,7 +9,9 @@ public class PlayerTest : MonoBehaviour
     //player speed
     public float speed;
 
-    public float defaultWalkSpeed = 5f;
+    public float walkSpeed = 2.5f;
+
+    public float runSpeed = 5;
 
     public float aimWalkSpeed = 2;
 
@@ -113,15 +115,21 @@ public class PlayerTest : MonoBehaviour
     //movement direction normalized
     Vector3 direction;
 
+    //animator
     Animator anim;
 
+    //attack button value
     public float attackVal;
 
+    //velocity on the y for when we jump and fall
     public float verticalVelocity;
+
     public float gravity = 14.0f;
     public float jumpForce = 10.0f;
     public float groundCheckWaitTime = 0.25f;
     public float timer = 0f;
+
+    public Transform attackRaycastTransform;
 
     public bool isAttacking = false;
 
@@ -132,7 +140,7 @@ public class PlayerTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        speed = defaultWalkSpeed;
+        speed = walkSpeed;
 
         //get character controller component
         cc = GetComponent<CharacterController>();
@@ -156,6 +164,8 @@ public class PlayerTest : MonoBehaviour
         defaultCameraFollowTarget = this.gameObject.transform.GetChild(4).gameObject;
 
         aimCameraFollowTarget = this.gameObject.transform.GetChild(5).gameObject;
+
+        attackRaycastTransform = this.gameObject.transform.GetChild(6).gameObject.transform;
 
         //set the camera's rotation to the follow target's rotationn
         newCameraRot = defaultCameraFollowTarget.transform.localRotation.eulerAngles;
@@ -203,9 +213,7 @@ public class PlayerTest : MonoBehaviour
         if (playerInput.currentControlScheme == "Keyboard&Mouse")
         {
             lookVal *= 0.5f;
-            lookVal *= 1;
-
-            Debug.Log(lookVal);
+            lookVal *= 0.1f;
         }
     }
 
@@ -321,6 +329,61 @@ public class PlayerTest : MonoBehaviour
 
                 #endregion
 
+                #region Attack Raycasting
+                if (playerInput.currentControlScheme == "Keyboard&Mouse")
+                {
+                    if (isAttacking)
+                    {
+                        // Bit shift the index of the layer (7) to get a bit mask
+                        int layerMask = 1 << 7;
+
+                        // This would cast rays only against colliders in layer 7.
+                        // But instead we want to collide against everything except layer 7. The ~ operator does this, it inverts a bitmask.
+                        layerMask = ~layerMask;
+
+                        Ray rayOrigin = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+
+                        // Does the ray intersect any objects excluding the player layer
+                        if (Physics.Raycast(rayOrigin, out RaycastHit hitInfo, Mathf.Infinity, layerMask))
+                        {
+
+                            if (hitInfo.collider != null)
+                            {
+                                Debug.Log(hitInfo.collider.gameObject);
+                                Vector3 d = hitInfo.point - attackRaycastTransform.position;
+                                Debug.DrawRay(attackRaycastTransform.position, d, Color.green);
+                            }
+
+                        }
+                    }
+                }
+                else if (playerInput.currentControlScheme == "GamePad")
+                {
+                    if (isAttacking)
+                    {
+                        // Bit shift the index of the layer (7) to get a bit mask
+                        int layerMask = 1 << 7;
+
+                        // This would cast rays only against colliders in layer 7.
+                        // But instead we want to collide against everything except layer 7. The ~ operator does this, it inverts a bitmask.
+                        layerMask = ~layerMask;
+
+                        // Create a vector at the center of our camera's viewport
+                        Vector3 rayOrigin = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
+
+                        // Does the ray intersect any objects excluding the player layer
+                        if (Physics.Raycast(rayOrigin, mainCam.transform.forward, out RaycastHit hit, 100f, layerMask))
+                        {
+                            Debug.Log(hit.collider.gameObject);
+                            Vector3 d = hit.point - attackRaycastTransform.position;
+
+                            Debug.DrawRay(attackRaycastTransform.position, d, Color.black);
+                        }
+
+                    }
+                }
+                #endregion
+
                 break;
             case PlayerState.Jumping:
 
@@ -371,7 +434,7 @@ public class PlayerTest : MonoBehaviour
 
                             if (hitInfo.collider != null)
                             {
-                                Debug.Log("hitting");
+                                Debug.Log(hitInfo.collider.gameObject);
                                 Vector3 d = hitInfo.point - transform.position;
                                 Debug.DrawRay(transform.position, d, Color.green);
                             }
@@ -392,6 +455,8 @@ public class PlayerTest : MonoBehaviour
                         // Check if our raycast has hit anything
                         if (Physics.Raycast(rayOrigin, mainCam.transform.forward, out hit, 100f))
                         {
+                            Debug.Log(hit.collider.gameObject);
+
                             Vector3 d = hit.point - transform.position;
 
                             // Rest of your code - what to do when raycast hits anything
@@ -490,10 +555,12 @@ public class PlayerTest : MonoBehaviour
                             if (direction.x > 0.7f)
                             {
                                 anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
                             }
                             else
                             {
                                 anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
                             }
                         }
                         else if (direction.z > direction.x)
@@ -501,10 +568,14 @@ public class PlayerTest : MonoBehaviour
                             if (direction.z > 0.5f)
                             {
                                 anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
                             }
                             else
                             {
                                 anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
                             }
                         }
                     }
@@ -517,10 +588,14 @@ public class PlayerTest : MonoBehaviour
                             if (-direction.x > 0.5f)
                             {
                                 anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
                             }
                             else
                             {
                                 anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
                             }
                         }
                         else if (direction.z > -direction.x)
@@ -528,10 +603,14 @@ public class PlayerTest : MonoBehaviour
                             if (direction.z > 0.5f)
                             {
                                 anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
                             }
                             else
                             {
                                 anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
                             }
                         }
                     }
@@ -544,10 +623,14 @@ public class PlayerTest : MonoBehaviour
                             if (direction.x > 0.5f)
                             {
                                 anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
                             }
                             else
                             {
                                 anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
                             }
                         }
                         else if (-direction.z > direction.x)
@@ -555,10 +638,14 @@ public class PlayerTest : MonoBehaviour
                             if (-direction.z > 0.5f)
                             {
                                 anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
                             }
                             else
                             {
                                 anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
                             }
                         }
                     }
@@ -571,10 +658,14 @@ public class PlayerTest : MonoBehaviour
                             if (-direction.x > 0.5f)
                             {
                                 anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
                             }
                             else
                             {
                                 anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
                             }
                         }
                         else if (-direction.z > -direction.x)
@@ -582,10 +673,14 @@ public class PlayerTest : MonoBehaviour
                             if (-direction.z > 0.5f)
                             {
                                 anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
                             }
                             else
                             {
                                 anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
                             }
                         }
                     }
@@ -602,54 +697,68 @@ public class PlayerTest : MonoBehaviour
                     if (direction.x > 0f && direction.z == 0)
                     {
                         anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
                     }
                     else if (direction.x < 0f && direction.z == 0)
                     {
                         anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
                     }
 
                     //forwards and backwards on keyboard
                     else if (direction.z > 0f && direction.x == 0)
                     {
                         anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
                     }
                     else if (direction.z < 0f && direction.x == 0)
                     {
                         anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
                     }
 
                     //top right movement on keyboard
                     else if (direction.x > 0 && direction.z > 0)
                     {
                         anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
                     }
 
                     //bottom right movement on keyboard
                     else if (direction.x > 0 && direction.z < 0)
                     {
                         anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
                     }
 
                     //top left movement on keyboard
                     else if (direction.x < 0 && direction.z > 0)
                     {
                         anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
                     }
 
                     //bottom left movement on keyboard
                     else if (direction.x < 0 && direction.z < 0)
                     {
                         anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
                     }
 
                     //no movement on keyboard
                     else if (direction.x == 0 && direction.z == 0)
                     {
                         anim.SetFloat("MoveVal", 0, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
                     }
                 }
 
                 #endregion
+
+                //if(verticalVelocity <= 0)
+                //{
+                //    verticalVelocity = 0;
+                //}
 
                 //update movement input
                 direction = new Vector3(moveVal.x, 0, moveVal.y);
@@ -774,7 +883,7 @@ public class PlayerTest : MonoBehaviour
                 //if the aim button is released
                 if (aimVal < 0.5f)
                 {
-                    speed = defaultWalkSpeed;
+                    speed = walkSpeed;
 
                     if (playerInput.currentControlScheme == "GamePad")
                     {
