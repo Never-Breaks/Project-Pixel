@@ -99,9 +99,13 @@ public class PlayerTest : MonoBehaviour
     public Vector2 velocity;
 
     //player rotation smoothing time
-    public float turnSmoothTime = 0.05f;
+    public float turnSmoothTime;
 
-    public float attackSmoothTime = 0.01f;
+    //default attack smoothing time
+    public float defaultAttackRotationSmoothTime;
+
+    //aim smoothing time
+    public float aimRotationSmoothTime;
 
     //rplayer otation smoothing  velocity
     public float turnSmoothVelocity;
@@ -125,8 +129,15 @@ public class PlayerTest : MonoBehaviour
     public float verticalVelocity;
 
     public float gravity = 14.0f;
+
+    public float slopeForce;
+
+    public float slopeForceRayLength;
+
     public float jumpForce = 10.0f;
+
     public float groundCheckWaitTime = 0.25f;
+
     public float timer = 0f;
 
     public Transform attackRaycastTransform;
@@ -135,7 +146,13 @@ public class PlayerTest : MonoBehaviour
 
     public bool isJumping = false;
 
+    float targetAngle;
 
+    Vector3 moveDirection;
+
+    Vector3 move;
+
+    float angle;
 
     // Start is called before the first frame update
     void Start()
@@ -222,14 +239,10 @@ public class PlayerTest : MonoBehaviour
         #region Jumping
         if (isGrounded)
         {
-            //add jump force to our vertical velocity
-            verticalVelocity = jumpForce;
-
-            //set timer to ground check waiting time
-            timer = groundCheckWaitTime;
-
-            //switch playerstate to jumping
-            playerState = PlayerState.Jumping;
+            if (!isJumping)
+            {
+                isJumping = true;
+            }
         }
         #endregion
     }
@@ -268,68 +281,8 @@ public class PlayerTest : MonoBehaviour
         {
             case PlayerState.Default:
 
-                #region Player Movement 
-
-                isGrounded = cc.isGrounded;
-
-                if (isGrounded)
-                {
-                    verticalVelocity = -gravity * Time.deltaTime;
-                }
-                else
-                {
-                    verticalVelocity -= gravity * Time.deltaTime;
-                
-                }
-                if (direction.magnitude >= 0.1f)
-                {
-                    //get angle to see how much we need to rotate on y axis from moving relative to camera
-                    float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.transform.eulerAngles.y;
-                    //smooth angle for player rotation
-                    float angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
-
-                    //rotation of model when attacking or not attacking while moving
-                    if (!isAttacking)
-                    {
-                        //rotate model by smooth angle so follow target doesnt also rotate
-                        model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
-                    }
-                    else if (isAttacking)
-                    {
-
-                        //smooth angle for player rotation
-                        float defaultRotateAngleSmooth = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, Camera.main.transform.localEulerAngles.y, ref turnSmoothVelocity, attackSmoothTime);
-
-                        //rotate model by smooth angle so follow target doesnt also rotate
-                        model.transform.rotation = Quaternion.Euler(0f, defaultRotateAngleSmooth, 0f);
-                    }
-
-                    //turn rotation to direction. direction you want to move in
-                    Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-
-                    Vector3 move = moveDirection.normalized * speed;
-                    //move
-                    cc.Move(new Vector3(move.x,verticalVelocity,move.z) * Time.deltaTime);
-                }
-                else
-                {
-                    //rotation of model when attacking or not attacking while moving
-                    if (isAttacking)
-                    {
-                        //smooth angle for player rotation
-                        float defaultRotateAngleSmooth = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, Camera.main.transform.localEulerAngles.y, ref turnSmoothVelocity, attackSmoothTime);
-
-                        //rotate model by smooth angle so follow target doesnt also rotate
-                        model.transform.rotation = Quaternion.Euler(0f, defaultRotateAngleSmooth, 0f);
-                    }
-
-                    direction = new Vector3(0, verticalVelocity, 0);
-                    cc.Move(direction  * Time.deltaTime);
-                }
-
-                #endregion
-
                 #region Attack Raycasting
+
                 if (playerInput.currentControlScheme == "Keyboard&Mouse")
                 {
                     if (isAttacking)
@@ -341,19 +294,18 @@ public class PlayerTest : MonoBehaviour
                         // But instead we want to collide against everything except layer 7. The ~ operator does this, it inverts a bitmask.
                         layerMask = ~layerMask;
 
+                        //ray from camera to cursor
                         Ray rayOrigin = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
 
                         // Does the ray intersect any objects excluding the player layer
                         if (Physics.Raycast(rayOrigin, out RaycastHit hitInfo, Mathf.Infinity, layerMask))
                         {
-
                             if (hitInfo.collider != null)
                             {
                                 Debug.Log(hitInfo.collider.gameObject);
                                 Vector3 d = hitInfo.point - attackRaycastTransform.position;
                                 Debug.DrawRay(attackRaycastTransform.position, d, Color.green);
                             }
-
                         }
                     }
                 }
@@ -376,12 +328,29 @@ public class PlayerTest : MonoBehaviour
                         {
                             Debug.Log(hit.collider.gameObject);
                             Vector3 d = hit.point - attackRaycastTransform.position;
-
                             Debug.DrawRay(attackRaycastTransform.position, d, Color.black);
                         }
-
                     }
                 }
+                #endregion
+
+                #region Player Movement 
+                //if (direction.magnitude >= 0.1f)
+                //{
+                //    //move
+                //    cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.fixedDeltaTime);
+
+                //    if (OnSlope())
+                //    {
+                //        cc.Move(2 * cc.height * slopeForce * Time.fixedDeltaTime * Vector3.down);
+                //    }
+
+                //}
+                //else
+                //{
+                //    cc.Move(new Vector3(0, verticalVelocity, 0) * Time.fixedDeltaTime);
+                //}
+
                 #endregion
 
                 break;
@@ -389,33 +358,15 @@ public class PlayerTest : MonoBehaviour
 
                 #region Player Movement
 
-                isGrounded = cc.isGrounded;
-
-                verticalVelocity -= gravity * Time.deltaTime;
-
-                if (direction.magnitude >= 0.1f)
-                {
-                    //get angle to see how much we need to rotate on y axis from moving relative to camera
-                    float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.transform.eulerAngles.y;
-                    //smooth angle for player rotation
-                    float angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
-
-                    //rotate model by smooth angle so follow target doesnt also rotate
-                    model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
-
-                    //turn rotation to direction. direction you want to move in
-                    Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-
-                    Vector3 move = moveDirection.normalized * speed;
-
-                    //move
-                    cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.deltaTime);
-                }
-                else
-                {
-                    direction = new Vector3(0, verticalVelocity, 0);
-                    cc.Move(direction * Time.deltaTime);
-                }
+                //if (direction.magnitude >= 0.1f)
+                //{            
+                //    //move
+                //    cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.fixedDeltaTime);
+                //}
+                //else
+                //{
+                //    cc.Move(new Vector3(0, verticalVelocity, 0) * Time.fixedDeltaTime);
+                //}
                 #endregion
 
                 break;
@@ -467,70 +418,39 @@ public class PlayerTest : MonoBehaviour
                 }
                 #endregion
 
-                #region Player Rotation
-                //smooth angle for player rotation
-                float aimRotateAngleSmooth = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, Camera.main.transform.localEulerAngles.y, ref turnSmoothVelocity, turnSmoothTime);
-
-                //rotate model by smooth angle so follow target doesnt also rotate
-                model.transform.rotation = Quaternion.Euler(0f, aimRotateAngleSmooth, 0f);
-                #endregion
-
                 #region Player Movement 
 
-                isGrounded = cc.isGrounded;
-
-                if (isGrounded)
-                {
-                    verticalVelocity = -gravity * Time.deltaTime;
-                }
-                else
-                {
-                    verticalVelocity -= gravity * Time.deltaTime;
-
-                }
-
-                if (direction.magnitude >= 0.1f)
-                {
-                    //get angle to see how much we need to rotate on y axis from moving relative to camera
-                    float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.transform.eulerAngles.y;
-                    
-                    //turn rotation to direction. direction you want to move in
-                    Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-
-                    //vector 3 of normalized movement input times speed
-                    Vector3 move = moveDirection.normalized * speed;
-
-                    //move
-                    cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.deltaTime);
-                }
-                else
-                {
-                    direction = new Vector3(0, verticalVelocity, 0);
-                    cc.Move(direction * Time.deltaTime);
-                }
-
+                //if (direction.magnitude >= 0.1f)
+                //{
+                //    //move
+                //    cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.deltaTime);
+                //}
+                //else
+                //{
+                //    //move
+                //    cc.Move(new Vector3(0, verticalVelocity, 0) * Time.fixedDeltaTime);
+                //}
                 #endregion   
 
                 break;
         }
     }
 
-    void Update()
+    private void LateUpdate()
     {
-        // Debug.Log(playerInput.currentActionMap);
-
         switch (playerState)
         {
             case PlayerState.Default:
-
                 #region Camera Control
 
                 wantedVelocity = lookVal * new Vector2(sensitivityX, sensitivityY);
 
                 //slowy accelerate to a velocity. this is for camera smoothing
-                velocity = new Vector2(
-                    Mathf.MoveTowards(velocity.x, wantedVelocity.x, acceleration.x * Time.deltaTime),
-                    Mathf.MoveTowards(velocity.y, wantedVelocity.y, acceleration.y * Time.deltaTime));
+                //velocity = new Vector2(
+                //    Mathf.MoveTowards(velocity.x, wantedVelocity.x, acceleration.x * Time.deltaTime),
+                //    Mathf.MoveTowards(velocity.y, wantedVelocity.y, acceleration.y * Time.deltaTime));
+
+                velocity = new Vector2(wantedVelocity.x, wantedVelocity.y);
 
                 //camera pitch rotation clamped to a min and max value
                 newCameraRot.x += sensitivityY * -velocity.y /*lookVal.y*/ * Time.deltaTime;
@@ -543,6 +463,82 @@ public class PlayerTest : MonoBehaviour
                 defaultCameraFollowTarget.transform.localRotation = Quaternion.Euler(newCameraRot);
 
                 #endregion
+                break;
+            case PlayerState.Jumping:
+                #region Camera Control
+
+                wantedVelocity = lookVal * new Vector2(sensitivityX, sensitivityY);
+
+                //slowy accelerate to a velocity. this is for camera smoothing
+                //velocity = new Vector2(
+                //    Mathf.MoveTowards(velocity.x, wantedVelocity.x, acceleration.x * Time.deltaTime),
+                //    Mathf.MoveTowards(velocity.y, wantedVelocity.y, acceleration.y * Time.deltaTime));
+
+                velocity = new Vector2(wantedVelocity.x, wantedVelocity.y);
+
+                //camera pitch rotation clamped to a min and max value
+                newCameraRot.x += sensitivityY * -velocity.y /*lookVal.y*/ * Time.deltaTime;
+                newCameraRot.x = Mathf.Clamp(newCameraRot.x, viewClampYmin, viewClampYmax);
+
+                //camera yaw rotation 
+                newCameraRot.y += sensitivityX * velocity.x /*lookVal.x*/ * Time.deltaTime;
+
+                //rotate the cameralook at with the cameras new rotation
+                defaultCameraFollowTarget.transform.localRotation = Quaternion.Euler(newCameraRot);
+
+                #endregion
+                break;
+            case PlayerState.Aiming:
+                #region Camera Control
+
+                wantedVelocity = lookVal * new Vector2(sensitivityX, sensitivityY);
+
+                //slowy accelerate to a velocity. this is for camera smoothing
+                //velocity = new Vector2(
+                //    Mathf.MoveTowards(velocity.x, wantedVelocity.x, acceleration.x * Time.deltaTime),
+                //    Mathf.MoveTowards(velocity.y, wantedVelocity.y, acceleration.y * Time.deltaTime));
+
+                velocity = new Vector2(wantedVelocity.x, wantedVelocity.y);
+
+                //camera pitch rotation clamped to a min and max value
+                newCameraRot.x += sensitivityY * -velocity.y * Time.deltaTime;
+                newCameraRot.x = Mathf.Clamp(newCameraRot.x, viewClampYmin, viewClampYmax);
+
+                //camera yaw rotation 
+                newCameraRot.y += sensitivityX * velocity.x * Time.deltaTime;
+
+                //rotate the cameralook at with the cameras new rotation
+                aimCameraFollowTarget.transform.localRotation = Quaternion.Euler(newCameraRot);
+
+                #endregion
+                break;
+        }
+    }
+
+    void Update()
+    {
+        // Debug.Log(playerInput.currentActionMap);
+
+        switch (playerState)
+        {
+            case PlayerState.Default:
+
+                //update movement input
+                direction = new Vector3(moveVal.x, 0, moveVal.y);
+
+                #region Update Gravity
+                if (isGrounded)
+                {
+                    verticalVelocity = -gravity * Time.deltaTime;
+                }
+                else
+                {
+                    verticalVelocity -= gravity * Time.deltaTime;
+                }
+                #endregion
+
+                //Ground check
+                isGrounded = cc.isGrounded;
 
                 #region Animation
                 if (playerInput.currentControlScheme == "GamePad")
@@ -755,13 +751,19 @@ public class PlayerTest : MonoBehaviour
 
                 #endregion
 
-                //if(verticalVelocity <= 0)
-                //{
-                //    verticalVelocity = 0;
-                //}
+                #region Jump Check
+                if (isJumping)
+                {
+                    //add jump force to our vertical velocity
+                    verticalVelocity = jumpForce;
 
-                //update movement input
-                direction = new Vector3(moveVal.x, 0, moveVal.y);
+                    //set timer to ground check waiting time
+                    timer = groundCheckWaitTime;
+
+                    //switch playerstate to jumping
+                    playerState = PlayerState.Jumping;
+                }
+                #endregion
 
                 #region Aim Check
                 //if the aim button is fuly pressed
@@ -791,7 +793,7 @@ public class PlayerTest : MonoBehaviour
                 }
                 #endregion
 
-                #region Player Attack
+                #region Player Attack Check
 
                 if (attackVal >= 1f)
                 {
@@ -804,50 +806,131 @@ public class PlayerTest : MonoBehaviour
 
                 #endregion
 
+                #region Update Player Movement Variables
+                if (direction.magnitude >= 0.1f)
+                {
+                    if (!isAttacking)
+                    {
+                        //get angle to see how much we need to rotate on y axis from moving relative to camera
+                        targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.transform.eulerAngles.y;
+
+                        //turn rotation to direction. direction you want to move in
+                        moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+
+                        //normalized movement vector
+                        move = moveDirection.normalized * speed;
+
+                        //smoothed angle for player rotation
+                        angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
+
+                        //rotate model by smooth angle so follow target doesnt also rotate
+                        model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+                    }
+                    else if (isAttacking)
+                    {
+                        //get angle to see how much we need to rotate on y axis from moving relative to camera
+                        targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.transform.eulerAngles.y;
+
+                        //turn rotation to direction. direction you want to move in
+                        moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+
+                        //normalized movement vector
+                        move = moveDirection.normalized * speed;
+
+                        //smoothed angle for player rotation
+                        angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, newCameraRot.y, ref turnSmoothVelocity, defaultAttackRotationSmoothTime);
+
+                        //rotate model by smooth angle so follow target doesnt also rotate
+                        model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+                    }
+                    //move
+                    cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.deltaTime);
+
+                    if (OnSlope())
+                    {
+                        cc.Move(2 * cc.height * slopeForce * Time.deltaTime * Vector3.down);
+                    }
+                }
+                else
+                {
+                    //rotation of model when attacking or not attacking while moving
+                    if (isAttacking)
+                    {
+                        Debug.Log("ee");
+                        ////smooth angle for player rotation
+                        angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, newCameraRot.y, ref turnSmoothVelocity, defaultAttackRotationSmoothTime);
+
+                        //rotate model by smooth angle so follow target doesnt also rotate
+                        model.transform.rotation = Quaternion.Euler(0f, angle, 0f); ;
+                    }
+
+                    cc.Move(new Vector3(0, verticalVelocity, 0) * Time.deltaTime);
+
+                }
+                #endregion
+
                 break;
 
             case PlayerState.Jumping:
 
-                #region Camera Control
-
-                wantedVelocity = lookVal * new Vector2(sensitivityX, sensitivityY);
-
-                //slowy accelerate to a velocity. this is for camera smoothing
-                velocity = new Vector2(
-                    Mathf.MoveTowards(velocity.x, wantedVelocity.x, acceleration.x * Time.deltaTime),
-                    Mathf.MoveTowards(velocity.y, wantedVelocity.y, acceleration.y * Time.deltaTime));
-
-                //camera pitch rotation clamped to a min and max value
-                newCameraRot.x += sensitivityY * -velocity.y /*lookVal.y*/ * Time.deltaTime;
-                newCameraRot.x = Mathf.Clamp(newCameraRot.x, viewClampYmin, viewClampYmax);
-
-                //camera yaw rotation 
-                newCameraRot.y += sensitivityX * velocity.x /*lookVal.x*/ * Time.deltaTime;
-
-                //rotate the cameralook at with the cameras new rotation
-                defaultCameraFollowTarget.transform.localRotation = Quaternion.Euler(newCameraRot);
-
-                #endregion
-
                 //update input direction
                 direction = new Vector3(moveVal.x, 0, moveVal.y);
 
+                //update grounded
+                isGrounded = cc.isGrounded;
+
+                //update gravity
+                verticalVelocity -= gravity * Time.deltaTime;
+
                 #region Jump Grounded Check Delay
+
                 //decrease timer
                 timer -= Time.deltaTime;
 
                 //slight delay before checking if we are on the ground
-               if(timer <= 0)
+                if (timer <= 0)
                 {
+                    //reset timer
                     timer = 0;
+
+                    //if we are grounded
                     if (isGrounded)
                     {
+                        //reset jumping bool
+                        isJumping = false;
+
                         //switch playerstate to default
                         playerState = PlayerState.Default;
-
-                        ////switch controls to default mode
-                        //playerInput.SwitchCurrentActionMap("PlayerMove");
                     }
+                }
+                #endregion
+
+
+                #region Update Player Movement Variables
+
+                if (direction.magnitude >= 0.1f)
+                {
+                    //get angle to see how much we need to rotate on y axis from moving relative to camera
+                    targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.transform.eulerAngles.y;
+
+                    //turn rotation to direction. direction you want to move in
+                    moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+
+                    //move vector
+                    move = moveDirection.normalized * speed;
+
+                    //smooth angle for player rotation
+                    angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
+
+                    //rotate model by smooth angle so follow target doesnt also rotate
+                    model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+                    cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.deltaTime);
+
+                }
+                else
+                {
+                    cc.Move(new Vector3(0, verticalVelocity, 0) * Time.deltaTime);
                 }
                 #endregion
 
@@ -855,53 +938,242 @@ public class PlayerTest : MonoBehaviour
 
             case PlayerState.Aiming:
 
-                #region Camera Control
-
-                wantedVelocity = lookVal * new Vector2(sensitivityX, sensitivityY);
-
-                //slowy accelerate to a velocity. this is for camera smoothing
-                velocity = new Vector2(
-                    Mathf.MoveTowards(velocity.x, wantedVelocity.x, acceleration.x * Time.deltaTime),
-                    Mathf.MoveTowards(velocity.y, wantedVelocity.y, acceleration.y * Time.deltaTime));
-
-                //camera pitch rotation clamped to a min and max value
-                newCameraRot.x += sensitivityY * -velocity.y /*lookVal.y*/ * Time.deltaTime;
-                newCameraRot.x = Mathf.Clamp(newCameraRot.x, viewClampYmin, viewClampYmax);
-
-                //camera yaw rotation 
-                newCameraRot.y += sensitivityX * velocity.x /*lookVal.x*/ * Time.deltaTime;
-
-                //rotate the cameralook at with the cameras new rotation
-                aimCameraFollowTarget.transform.localRotation = Quaternion.Euler(newCameraRot);
-
-                #endregion
-
                 //update movement input
                 direction = new Vector3(moveVal.x, 0, moveVal.y);
 
-                #region Aim Check
+                //update grounded check
+                isGrounded = cc.isGrounded;
+
+                #region Update Gravity
+                if (isGrounded)
+                {
+                    verticalVelocity = -gravity * Time.deltaTime;
+                }
+                else
+                {
+                    verticalVelocity -= gravity * Time.deltaTime;
+                }
+                #endregion
+
+                #region Animation
+                if (playerInput.currentControlScheme == "GamePad")
+                {
+                    //top right movement on joystick
+                    if (direction.x > 0f && direction.z > 0f)
+                    {
+                        if (direction.x > direction.z)
+                        {
+                            if (direction.x > 0.7f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+                            }
+                        }
+                        else if (direction.z > direction.x)
+                        {
+                            if (direction.z > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
+                            }
+                        }
+                    }
+
+                    //top left movement on joystick
+                    else if (direction.x < 0f && direction.z > 0f)
+                    {
+                        if (-direction.x > direction.z)
+                        {
+                            if (-direction.x > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
+                            }
+                        }
+                        else if (direction.z > -direction.x)
+                        {
+                            if (direction.z > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
+                            }
+                        }
+                    }
+
+                    //bottom right movement on joystick
+                    else if (direction.x > 0f && direction.z < 0f)
+                    {
+                        if (direction.x > -direction.z)
+                        {
+                            if (direction.x > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
+                            }
+                        }
+                        else if (-direction.z > direction.x)
+                        {
+                            if (-direction.z > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
+                            }
+                        }
+                    }
+
+                    //bottom left movement on joystick
+                    else if (direction.x < 0f && direction.z < 0f)
+                    {
+                        if (-direction.x > -direction.z)
+                        {
+                            if (-direction.x > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
+                            }
+                        }
+                        else if (-direction.z > -direction.x)
+                        {
+                            if (-direction.z > 0.5f)
+                            {
+                                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                                speed = runSpeed;
+
+                            }
+                            else
+                            {
+                                anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                                speed = walkSpeed;
+
+                            }
+                        }
+                    }
+
+                    //no joystick movement
+                    else if (direction.x == 0 && direction.z == 0)
+                    {
+                        anim.SetFloat("MoveVal", 0, 0.1f, Time.deltaTime);
+                    }
+                }
+                else if (playerInput.currentControlScheme == "Keyboard&Mouse")
+                {
+                    //left and right on keyboard
+                    if (direction.x > 0f && direction.z == 0)
+                    {
+                        anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
+                    }
+                    else if (direction.x < 0f && direction.z == 0)
+                    {
+                        anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
+                    }
+
+                    //forwards and backwards on keyboard
+                    else if (direction.z > 0f && direction.x == 0)
+                    {
+                        anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
+                    }
+                    else if (direction.z < 0f && direction.x == 0)
+                    {
+                        anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
+                    }
+
+                    //top right movement on keyboard
+                    else if (direction.x > 0 && direction.z > 0)
+                    {
+                        anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
+                    }
+
+                    //bottom right movement on keyboard
+                    else if (direction.x > 0 && direction.z < 0)
+                    {
+                        anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
+                    }
+
+                    //top left movement on keyboard
+                    else if (direction.x < 0 && direction.z > 0)
+                    {
+                        anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
+                    }
+
+                    //bottom left movement on keyboard
+                    else if (direction.x < 0 && direction.z < 0)
+                    {
+                        anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
+                    }
+
+                    //no movement on keyboard
+                    else if (direction.x == 0 && direction.z == 0)
+                    {
+                        anim.SetFloat("MoveVal", 0, 0.1f, Time.deltaTime);
+                        speed = runSpeed;
+                    }
+                }
+                #endregion
+
+                #region Aim Button Check
                 //if the aim button is released
                 if (aimVal < 0.5f)
                 {
-                    speed = walkSpeed;
-
-                    if (playerInput.currentControlScheme == "GamePad")
-                    {
-                        sensitivityX = controllerSensitivityX;
-                        sensitivityY = controllerSensitivityY;
-                    }
-                    else if (playerInput.currentControlScheme == "Keyboard&Mouse")
-                    {
-                        sensitivityX = mouseSensitivityX;
-                        sensitivityY = mouseSensitivityY;
-                    }
+                    speed = walkSpeed;                   
 
                     //switch cinemachine cam to default cam
                     defaultCam.SetActive(true);
                     aimCam.SetActive(false);
-
-                    ////switch controls to default mode
-                    //playerInput.SwitchCurrentActionMap("PlayerMove");
 
                     //switch playerstate to default
                     playerState = PlayerState.Default;
@@ -920,7 +1192,73 @@ public class PlayerTest : MonoBehaviour
                 }
                 #endregion
 
+                #region Jump Check
+
+                if (isJumping)
+                {
+                    //add jump force to our vertical velocity
+                    verticalVelocity = jumpForce;
+
+                    //set timer to ground check waiting time
+                    timer = groundCheckWaitTime;
+
+                    //switch cinemachine cam to default cam
+                    defaultCam.SetActive(true);
+                    aimCam.SetActive(false);
+
+                    //switch playerstate to jumping
+                    playerState = PlayerState.Jumping;
+                }
+                #endregion
+
+                #region Update Player Movement Variables
+                if (direction.magnitude >= 0.1f)
+                {
+                    //get angle to see how much we need to rotate on y axis from moving relative to camera
+                    targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + mainCam.transform.eulerAngles.y;
+
+                    //turn rotation to direction. direction you want to move in
+                    moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+
+                    //normalized movement vector
+                    move = moveDirection.normalized * speed;
+
+                    //smoothed angle for player rotation
+                    angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, newCameraRot.y, ref turnSmoothVelocity, aimRotationSmoothTime);
+
+                    //rotate model by smooth angle so follow target doesnt also rotate
+                    model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+                    cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.deltaTime);
+                }
+                else
+                {
+                    angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, newCameraRot.y, ref turnSmoothVelocity, aimRotationSmoothTime);
+
+                    ////rotate model by smooth angle so follow target doesnt also rotate
+                    model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+                    cc.Move(new Vector3(0, verticalVelocity, 0) * Time.deltaTime);
+                }
+                #endregion
+
                 break;       
         }
+    }
+
+    bool OnSlope()
+    {
+        RaycastHit hit;
+
+        //cast ray to ground
+        if(Physics.Raycast(transform.position, Vector3.down, out hit, cc.height / 2 * slopeForceRayLength))
+        {
+            //if the normal from the hit is not 0,1,0 we are on a slope and need to do some additional force
+            if(hit.normal != Vector3.up)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

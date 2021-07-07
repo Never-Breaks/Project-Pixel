@@ -1079,7 +1079,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 687895706}
   m_LocalRotation: {x: 0.40959755, y: -0, z: -0, w: 0.9122663}
-  m_LocalPosition: {x: 1.5976334, y: 2.5, z: 5.3392067}
+  m_LocalPosition: {x: -2.9970112, y: 2.5, z: 2.6661224}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1856030813}
@@ -1160,7 +1160,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 791689914}
   m_LocalRotation: {x: 0.42612344, y: 0.000000019669383, z: -0.000000009264848, w: 0.9046651}
-  m_LocalPosition: {x: 1.5859611, y: 2.5, z: 5.346513}
+  m_LocalPosition: {x: -2.996811, y: 2.5, z: 2.6617136}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1637519197}
@@ -2683,7 +2683,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1870605594}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.68, y: 0.086, z: -10.65}
+  m_LocalPosition: {x: 13.5, y: 0.086, z: -12.23}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1244774502}
@@ -2811,9 +2811,9 @@ MonoBehaviour:
   aimCam: {fileID: 0}
   defaultCam: {fileID: 0}
   newCameraRot: {x: 0, y: 0, z: 0}
-  mouseSensitivityX: 25
+  mouseSensitivityX: 15
   mouseAimSensitivityX: 12
-  mouseSensitivityY: 25
+  mouseSensitivityY: 15
   mouseAimSensitivityY: 12
   controllerSensitivityX: 15
   controllerAimSensitivityX: 10
@@ -2828,14 +2828,17 @@ MonoBehaviour:
   acceleration: {x: 2000, y: 2000}
   velocity: {x: 0, y: 0}
   turnSmoothTime: 0.05
-  attackSmoothTime: 0.01
+  defaultAttackRotationSmoothTime: 0.02
+  aimRotationSmoothTime: 0.05
   turnSmoothVelocity: 0
   model: {fileID: 0}
   attackVal: 0
   verticalVelocity: 0
-  gravity: 14
+  gravity: 15
+  slopeForce: 10
+  slopeForceRayLength: 1.5
   jumpForce: 5
-  groundCheckWaitTime: 0.5
+  groundCheckWaitTime: 0.15
   timer: 0
   attackRaycastTransform: {fileID: 0}
   isAttacking: 0
@@ -3002,7 +3005,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1939737228}
   m_LocalRotation: {x: 0.3929803, y: -0.000000015822074, z: 0.000000006761769, w: 0.9195469}
-  m_LocalPosition: {x: 1.5840044, y: 2.5, z: 5.3477306}
+  m_LocalPosition: {x: -2.9983559, y: 2.5, z: 2.7006989}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1246569057}
