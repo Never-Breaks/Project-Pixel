@@ -21,7 +21,8 @@ public class DoorScript : MonoBehaviour
     bool Interacting;
     void Start()
     {
-        //player = GameObject.FindGameObjectWithTag("Player");
+        player = GameObject.FindGameObjectWithTag("Player");
+        DoorText = GameObject.Find("Door Text").GetComponent<Text>();
         yValueAfterMoving = transform.position.y - TempDistanceToMoveWhenBought;
         DoorText.text = "Press Q To Buy Door $" + DoorCost + ".";
     }
