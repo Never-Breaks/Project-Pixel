@@ -1,11 +1,8 @@
 fileFormatVersion: 2
-guid: 414bb6efb549dc94097a02d20c2bf81d
+guid: 8f47771d76c1b9b498b3d13d65484758
 ModelImporter:
   serializedVersion: 20200
-  internalIDToNameTable:
-  - first:
-      74: -6383598000324743653
-    second: watermage
+  internalIDToNameTable: []
   externalObjects: {}
   materials:
     materialImportMode: 2
