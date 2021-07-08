@@ -1010,7 +1010,7 @@ MeshRenderer:
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 73c176f402d2c2f4d929aa5da7585d17, type: 2}
+  - {fileID: 2100000, guid: 1c32ec7d228ccc74ea0c35809836bee9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1996,7 +1996,7 @@ MeshRenderer:
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 73c176f402d2c2f4d929aa5da7585d17, type: 2}
+  - {fileID: 2100000, guid: e196e26f0e3438944845bd18a97fd4ac, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2795,8 +2795,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
-  walkSpeed: 1
-  runSpeed: 5
+  walkSpeed: 3
+  runSpeed: 6
   aimWalkSpeed: 2
   moveVal: {x: 0, y: 0}
   lookVal: {x: 0, y: 0}
@@ -2823,16 +2823,18 @@ MonoBehaviour:
   sensitivityY: 0
   viewInvertedX: 0
   viewInvertedY: 0
-  viewClampYmin: -35
-  viewClampYmax: 50
+  viewClampYmin: -70
+  viewClampYmax: 70
   acceleration: {x: 2000, y: 2000}
   velocity: {x: 0, y: 0}
   turnSmoothTime: 0.05
   defaultAttackRotationSmoothTime: 0.02
-  aimRotationSmoothTime: 0.05
+  aimRotationSmoothTime: 0.02
   turnSmoothVelocity: 0
   model: {fileID: 0}
   attackVal: 0
+  jumpVal: 0
+  runVal: 0
   verticalVelocity: 0
   gravity: 15
   slopeForce: 10
