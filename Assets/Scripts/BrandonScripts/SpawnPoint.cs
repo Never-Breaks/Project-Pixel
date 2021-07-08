@@ -12,8 +12,6 @@ public class SpawnPoint : MonoBehaviour
 
         player.transform.position = spawnPoints[0].position;
     }
-
-
     public void RespawnPlayer()
     {
         player.transform.position = spawnPoints[GetRandomPos()].position;

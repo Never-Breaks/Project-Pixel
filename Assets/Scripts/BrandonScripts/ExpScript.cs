@@ -9,8 +9,7 @@ public class ExpScript : MonoBehaviour
     int lastexpValue;
     [SerializeField] int expToNextLevel = 20;
     int overFillExp;
-    ExpBar Bar;
-
+    [SerializeField]ExpBar Bar;
     void Update()
     {
         if (exp >= expToNextLevel)

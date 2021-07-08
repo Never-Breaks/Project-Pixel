@@ -56,6 +56,9 @@ public class DoorScript : MonoBehaviour
     {
         //if (player.GetComponent<PlayerScript>().money >= DoorCost)
         // {
+
+        ExpScript.exp += 2;
+
         IsBought = true;
         // player.GetComponent<PlayerScript>().money -= DoorCost;
         // }
