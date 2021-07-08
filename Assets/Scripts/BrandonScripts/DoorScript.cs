@@ -19,6 +19,7 @@ public class DoorScript : MonoBehaviour
     GameObject player;
     [SerializeField] Text DoorText;
     bool Interacting;
+    public float QValue;
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
@@ -28,6 +29,13 @@ public class DoorScript : MonoBehaviour
     }
     void Update()
     {
+        QValue = player.GetComponent<PlayerTest>().QValue;
+
+        if (QValue >= 1f)
+            Interacting = true;
+        else if (QValue < 0.5f)
+            Interacting = false;
+
         if (CheckForDistance())
         {
             if (!IsBought)
@@ -69,8 +77,5 @@ public class DoorScript : MonoBehaviour
         //right now i just have it going down seeing theirs no animation yet
         transform.position -= (new Vector3(0, 1, 0) * Time.deltaTime);
     }
-    void OnInteract(InputValue value)
-    {
-        Interacting = value.Get<bool>();
-    }
+
 }

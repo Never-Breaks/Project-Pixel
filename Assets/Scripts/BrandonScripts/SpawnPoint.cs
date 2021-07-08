@@ -4,21 +4,20 @@ using UnityEngine;
 
 public class SpawnPoint : MonoBehaviour
 {
-    [SerializeField] GameObject[] spawnPoints;
+    [SerializeField] Transform[] spawnPoints;
     GameObject player;
     private void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
 
-        player.transform.position = spawnPoints[0].transform.position;
+        player.transform.position = spawnPoints[0].position;
     }
 
 
     public void RespawnPlayer()
     {
-        player.transform.position = spawnPoints[GetRandomPos()].transform.position;
+        player.transform.position = spawnPoints[GetRandomPos()].position;
     }
-
     int GetRandomPos()
     {
         int randInt = Random.Range(0, spawnPoints.Length - 1);

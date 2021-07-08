@@ -157,6 +157,9 @@ public class PlayerTest : MonoBehaviour
     Vector3 move;
 
     float angle;
+    
+    [HideInInspector]
+    public float QValue;
 
     // Start is called before the first frame update
     void Start()
@@ -213,7 +216,11 @@ public class PlayerTest : MonoBehaviour
         }
 
     }
-
+    public void OnInteract(InputValue value)
+    {
+        QValue = value.Get<float>();
+        print("QQQQQQ");
+    }
     public void OnMove(InputValue value)
     {
         if (playerInput.currentControlScheme == "GamePad")
