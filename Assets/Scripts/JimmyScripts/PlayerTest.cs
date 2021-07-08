@@ -186,7 +186,7 @@ public class PlayerTest : MonoBehaviour
 
         aimCameraFollowTarget = this.gameObject.transform.GetChild(5).gameObject;
 
-        attackRaycastTransform = this.gameObject.transform.GetChild(6).gameObject.transform;
+        attackRaycastTransform = model.transform.GetChild(0).gameObject.transform;
 
         //set the camera's rotation to the follow target's rotationn
         newCameraRot = defaultCameraFollowTarget.transform.localRotation.eulerAngles;
@@ -301,7 +301,7 @@ public class PlayerTest : MonoBehaviour
                         Ray rayOrigin = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
 
                         // Does the ray intersect any objects excluding the player layer
-                        if (Physics.Raycast(rayOrigin, out RaycastHit hitInfo, 2.5f, layerMask))
+                        if (Physics.Raycast(rayOrigin, out RaycastHit hitInfo, 5f, layerMask))
                         {
                             if (hitInfo.collider != null)
                             {
@@ -327,7 +327,7 @@ public class PlayerTest : MonoBehaviour
                         Vector3 rayOrigin = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
 
                         // Does the ray intersect any objects excluding the player layer
-                        if (Physics.Raycast(rayOrigin, mainCam.transform.forward, out RaycastHit hit, 2.5f, layerMask))
+                        if (Physics.Raycast(rayOrigin, mainCam.transform.forward, out RaycastHit hit, 5f, layerMask))
                         {
                             Debug.Log(hit.collider.gameObject);
                             Vector3 d = hit.point - attackRaycastTransform.position;
@@ -383,14 +383,14 @@ public class PlayerTest : MonoBehaviour
                         Ray rayOrigin = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
                         RaycastHit hitInfo;
 
-                        if (Physics.Raycast(rayOrigin, out hitInfo, 100f))
+                        if (Physics.Raycast(rayOrigin, out hitInfo, 10f))
                         {
 
                             if (hitInfo.collider != null)
                             {
                                 Debug.Log(hitInfo.collider.gameObject);
-                                Vector3 d = hitInfo.point - transform.position;
-                                Debug.DrawRay(transform.position, d, Color.green);
+                                Vector3 d = hitInfo.point - attackRaycastTransform.position;
+                                Debug.DrawRay(attackRaycastTransform.position, d, Color.green);
                             }
 
                         }
@@ -407,14 +407,14 @@ public class PlayerTest : MonoBehaviour
                         RaycastHit hit;
 
                         // Check if our raycast has hit anything
-                        if (Physics.Raycast(rayOrigin, mainCam.transform.forward, out hit, 100f))
+                        if (Physics.Raycast(rayOrigin, mainCam.transform.forward, out hit, 10f))
                         {
                             Debug.Log(hit.collider.gameObject);
 
-                            Vector3 d = hit.point - transform.position;
+                            Vector3 d = hit.point - attackRaycastTransform.position;
 
                             // Rest of your code - what to do when raycast hits anything
-                            Debug.DrawRay(transform.position, d, Color.black);
+                            Debug.DrawRay(attackRaycastTransform.position, d, Color.black);
                         }
                     
                     }
