@@ -504,6 +504,18 @@ public class PlayerTest : MonoBehaviour
                 //Ground check
                 isGrounded = cc.isGrounded;
 
+                //if(!isGrounded)
+                //{
+                //    //play falling animation
+
+
+                //    //switch playerstate to jumping
+                //    playerState = PlayerState.Jumping;
+
+                //    //break out of the loop
+                //    break;
+                //}
+
                 #region Animation
                 if (playerInput.currentControlScheme == "GamePad")
                 {
@@ -898,22 +910,6 @@ public class PlayerTest : MonoBehaviour
 
                 #endregion
 
-                #region Jump Check
-                if (jumpVal >=1f)
-                {
-                    ////set the jumping flag to true
-                    //isJumping = true;
-
-                    //add jump force to our vertical velocity
-                    verticalVelocity = jumpForce;
-
-                    //set timer to ground check waiting time
-                    timer = groundCheckWaitTime;
-
-                    //switch playerstate to jumping
-                    playerState = PlayerState.Jumping;
-                }
-                #endregion
 
                 #region Aim Check
                 //if the aim button is fuly pressed
@@ -938,10 +934,41 @@ public class PlayerTest : MonoBehaviour
 
                     aimCameraFollowTarget.transform.localRotation = defaultCameraFollowTarget.transform.localRotation;
 
+                    anim.SetBool("isAiming", true);
+
                     //switch playerstate to aiming
                     playerState = PlayerState.Aiming;
+
+                    //break out of the loop 
+                    break;
                 }
                 #endregion
+
+                #region Jump Check
+                if (jumpVal >= 1f && isGrounded)
+                {
+                    ////set the jumping flag to true
+                    //isJumping = true;
+
+                    //add jump force to our vertical velocity
+                    verticalVelocity = jumpForce;
+
+                    //set timer to ground check waiting time
+                    timer = groundCheckWaitTime;
+
+                    anim.SetBool("isJumping", true);
+
+                    //reduce speed when jumping
+                    //speed = walkSpeed;
+
+                    //switch playerstate to jumping
+                    playerState = PlayerState.Jumping;
+
+                    //break out of the loop
+                    break;
+                }
+                #endregion
+
 
                 #region Player Attack Check
 
@@ -1053,399 +1080,398 @@ public class PlayerTest : MonoBehaviour
                 isGrounded = cc.isGrounded;
 
                 #region Animation
-                if (playerInput.currentControlScheme == "GamePad")
-                {
-                    //top right movement on joystick
-                    if (direction.x > 0f && direction.z > 0f)
-                    {
-                        if (direction.x > direction.z)
-                        {
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
+                //if (playerInput.currentControlScheme == "GamePad")
+                //{
+                //    //top right movement on joystick
+                //    if (direction.x > 0f && direction.z > 0f)
+                //    {
+                //        if (direction.x > direction.z)
+                //        {
+                //            if (runVal < 0.5f)
+                //            {
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //                speed = walkSpeed;
+                //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
 
 
-                            //if (direction.x > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
-                            //}
-                        }
-                        else if (direction.z > direction.x)
-                        {
+                //            //if (direction.x > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
+                //            //}
+                //        }
+                //        else if (direction.z > direction.x)
+                //        {
 
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
+                //            if (runVal < 0.5f)
+                //            {
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //                speed = walkSpeed;
+                //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
 
-                            //if (direction.z > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
+                //            //if (direction.z > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
 
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
 
-                            //}
-                        }
-                    }
+                //            //}
+                //        }
+                //    }
 
-                    //top left movement on joystick
-                    else if (direction.x < 0f && direction.z > 0f)
-                    {
-                        if (-direction.x > direction.z)
-                        {
+                //    //top left movement on joystick
+                //    else if (direction.x < 0f && direction.z > 0f)
+                //    {
+                //        if (-direction.x > direction.z)
+                //        {
 
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
-                            //if (-direction.x > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
+                //            if (runVal < 0.5f)
+                //            {
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //                speed = walkSpeed;
+                //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
+                //            //if (-direction.x > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
 
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
 
-                            //}
-                        }
-                        else if (direction.z > -direction.x)
-                        {
+                //            //}
+                //        }
+                //        else if (direction.z > -direction.x)
+                //        {
 
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
+                //            if (runVal < 0.5f)
+                //            {
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //                speed = walkSpeed;
+                //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
 
-                            //if (direction.z > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
+                //            //if (direction.z > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
 
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
 
-                            //}
-                        }
-                    }
+                //            //}
+                //        }
+                //    }
 
-                    //bottom right movement on joystick
-                    else if (direction.x > 0f && direction.z < 0f)
-                    {
-                        if (direction.x > -direction.z)
-                        {
+                //    //bottom right movement on joystick
+                //    else if (direction.x > 0f && direction.z < 0f)
+                //    {
+                //        if (direction.x > -direction.z)
+                //        {
 
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
+                //            if (runVal < 0.5f)
+                //            {
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //                speed = walkSpeed;
+                //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
 
-                            //if (direction.x > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
+                //            //if (direction.x > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
 
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
 
-                            //}
-                        }
-                        else if (-direction.z > direction.x)
-                        {
+                //            //}
+                //        }
+                //        else if (-direction.z > direction.x)
+                //        {
 
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
+                //            if (runVal < 0.5f)
+                //            {
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //                speed = walkSpeed;
+                //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
 
-                            //if (-direction.z > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
+                //            //if (-direction.z > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
 
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
 
-                            //}
-                        }
-                    }
+                //            //}
+                //        }
+                //    }
 
-                    //bottom left movement on joystick
-                    else if (direction.x < 0f && direction.z < 0f)
-                    {
-                        if (-direction.x > -direction.z)
-                        {
+                //    //bottom left movement on joystick
+                //    else if (direction.x < 0f && direction.z < 0f)
+                //    {
+                //        if (-direction.x > -direction.z)
+                //        {
 
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
+                //            if (runVal < 0.5f)
+                //            {
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //                speed = walkSpeed;
+                //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
 
-                            //if (-direction.x > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
+                //            //if (-direction.x > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
 
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
 
-                            //}
-                        }
-                        else if (-direction.z > -direction.x)
-                        {
+                //            //}
+                //        }
+                //        else if (-direction.z > -direction.x)
+                //        {
 
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
+                //            if (runVal < 0.5f)
+                //            {
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //                speed = walkSpeed;
+                //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
 
-                            //if (-direction.z > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
+                //            //if (-direction.z > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
 
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
 
-                            //}
-                        }
-                    }
+                //            //}
+                //        }
+                //    }
 
-                    //no joystick movement
-                    else if (direction.x == 0 && direction.z == 0)
-                    {
-                        anim.SetFloat("MoveVal", 0, 0.1f, Time.deltaTime);
-                    }
-                }
-                else if (playerInput.currentControlScheme == "Keyboard&Mouse")
-                {
-                    //left and right on keyboard
-                    if (direction.x > 0f && direction.z == 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
+                //    //no joystick movement
+                //    else if (direction.x == 0 && direction.z == 0)
+                //    {
+                //        anim.SetFloat("MoveVal", 0, 0.1f, Time.deltaTime);
+                //    }
+                //}
+                //else if (playerInput.currentControlScheme == "Keyboard&Mouse")
+                //{
+                //    //left and right on keyboard
+                //    if (direction.x > 0f && direction.z == 0)
+                //    {
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
 
-                        //anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
-                    else if (direction.x < 0f && direction.z == 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
+                //        //anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
+                //    }
+                //    else if (direction.x < 0f && direction.z == 0)
+                //    {
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
 
-                        //anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
+                //        //anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
+                //    }
 
-                    //forwards and backwards on keyboard
-                    else if (direction.z > 0f && direction.x == 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
+                //    //forwards and backwards on keyboard
+                //    else if (direction.z > 0f && direction.x == 0)
+                //    {
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
 
-                        //anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
-                    else if (direction.z < 0f && direction.x == 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
+                //        //anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
+                //    }
+                //    else if (direction.z < 0f && direction.x == 0)
+                //    {
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
 
-                        //anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
+                //        //anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
+                //    }
 
-                    //top right movement on keyboard
-                    else if (direction.x > 0 && direction.z > 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
+                //    //top right movement on keyboard
+                //    else if (direction.x > 0 && direction.z > 0)
+                //    {
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
 
-                        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
+                //        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
+                //    }
 
-                    //bottom right movement on keyboard
-                    else if (direction.x > 0 && direction.z < 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
+                //    //bottom right movement on keyboard
+                //    else if (direction.x > 0 && direction.z < 0)
+                //    {
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
 
-                        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
+                //        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
+                //    }
 
-                    //top left movement on keyboard
-                    else if (direction.x < 0 && direction.z > 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
+                //    //top left movement on keyboard
+                //    else if (direction.x < 0 && direction.z > 0)
+                //    {
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
 
-                        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
+                //        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
+                //    }
 
-                    //bottom left movement on keyboard
-                    else if (direction.x < 0 && direction.z < 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
+                //    //bottom left movement on keyboard
+                //    else if (direction.x < 0 && direction.z < 0)
+                //    {
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
 
-                        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
+                //        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
+                //    }
 
-                    //no movement on keyboard
-                    else if (direction.x == 0 && direction.z == 0)
-                    {
-                        anim.SetFloat("MoveVal", 0, 0.1f, Time.deltaTime);
-                        speed = runSpeed;
-                    }
-                }
+                //    //no movement on keyboard
+                //    else if (direction.x == 0 && direction.z == 0)
+                //    {
+                //        anim.SetFloat("MoveVal", 0, 0.1f, Time.deltaTime);
+                //        speed = runSpeed;
+                //    }
+                //}
 
                 #endregion
-
 
                 #region Jump Grounded Check Delay
 
@@ -1464,8 +1490,13 @@ public class PlayerTest : MonoBehaviour
                         ////reset jumping bool
                         //isJumping = false;
 
+                        anim.SetBool("isJumping", false);
+
                         //switch playerstate to default
                         playerState = PlayerState.Default;
+
+                        //break out of the loop
+                        break;
                     }
                 }
                 #endregion
@@ -1525,6 +1556,10 @@ public class PlayerTest : MonoBehaviour
                 //update movement input
                 direction = new Vector3(moveVal.x, 0, moveVal.y);
 
+                //update animation float to control strafe anims
+                anim.SetFloat("InputX", direction.x);
+                anim.SetFloat("InputZ", direction.z);
+
                 //update grounded check
                 isGrounded = cc.isGrounded;
 
@@ -1547,31 +1582,55 @@ public class PlayerTest : MonoBehaviour
                 //    {
                 //        if (direction.x > direction.z)
                 //        {
-                //            if (direction.x > 0.7f)
+                //            if (runVal < 0.5f)
                 //            {
-                //                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                //                speed = runSpeed;
-                //            }
-                //            else
-                //            {
-                //                anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
                 //                speed = walkSpeed;
                 //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
+
+
+                //            //if (direction.x > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
+                //            //}
                 //        }
                 //        else if (direction.z > direction.x)
                 //        {
-                //            if (direction.z > 0.5f)
-                //            {
-                //                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                //                speed = runSpeed;
 
-                //            }
-                //            else
+                //            if (runVal < 0.5f)
                 //            {
-                //                anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
                 //                speed = walkSpeed;
-
                 //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
+
+                //            //if (direction.z > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
+
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
+
+                //            //}
                 //        }
                 //    }
 
@@ -1580,33 +1639,56 @@ public class PlayerTest : MonoBehaviour
                 //    {
                 //        if (-direction.x > direction.z)
                 //        {
-                //            if (-direction.x > 0.5f)
-                //            {
-                //                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                //                speed = runSpeed;
 
-                //            }
-                //            else
+                //            if (runVal < 0.5f)
                 //            {
-                //                anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
                 //                speed = walkSpeed;
-
                 //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
+                //            //if (-direction.x > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
+
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
+
+                //            //}
                 //        }
                 //        else if (direction.z > -direction.x)
                 //        {
-                //            if (direction.z > 0.5f)
-                //            {
-                //                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                //                speed = runSpeed;
 
-                //            }
-                //            else
+                //            if (runVal < 0.5f)
                 //            {
-                //                anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
                 //                speed = walkSpeed;
-
                 //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
+
+                //            //if (direction.z > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
+
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
+
+                //            //}
                 //        }
                 //    }
 
@@ -1615,33 +1697,57 @@ public class PlayerTest : MonoBehaviour
                 //    {
                 //        if (direction.x > -direction.z)
                 //        {
-                //            if (direction.x > 0.5f)
-                //            {
-                //                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                //                speed = runSpeed;
 
-                //            }
-                //            else
+                //            if (runVal < 0.5f)
                 //            {
-                //                anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
                 //                speed = walkSpeed;
-
                 //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
+
+                //            //if (direction.x > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
+
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
+
+                //            //}
                 //        }
                 //        else if (-direction.z > direction.x)
                 //        {
-                //            if (-direction.z > 0.5f)
-                //            {
-                //                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                //                speed = runSpeed;
 
-                //            }
-                //            else
+                //            if (runVal < 0.5f)
                 //            {
-                //                anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
                 //                speed = walkSpeed;
-
                 //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
+
+                //            //if (-direction.z > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
+
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
+
+                //            //}
                 //        }
                 //    }
 
@@ -1650,33 +1756,57 @@ public class PlayerTest : MonoBehaviour
                 //    {
                 //        if (-direction.x > -direction.z)
                 //        {
-                //            if (-direction.x > 0.5f)
-                //            {
-                //                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                //                speed = runSpeed;
 
-                //            }
-                //            else
+                //            if (runVal < 0.5f)
                 //            {
-                //                anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
                 //                speed = walkSpeed;
-
                 //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
+
+                //            //if (-direction.x > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
+
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
+
+                //            //}
                 //        }
                 //        else if (-direction.z > -direction.x)
                 //        {
-                //            if (-direction.z > 0.5f)
-                //            {
-                //                anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                //                speed = runSpeed;
 
-                //            }
-                //            else
+                //            if (runVal < 0.5f)
                 //            {
-                //                anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                //                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
                 //                speed = walkSpeed;
-
                 //            }
+                //            else if (runVal >= 1f)
+                //            {
+                //                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //                speed = runSpeed;
+                //            }
+
+                //            //if (-direction.z > 0.5f)
+                //            //{
+                //            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //            //    speed = runSpeed;
+
+                //            //}
+                //            //else
+                //            //{
+                //            //    anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                //            //    speed = walkSpeed;
+
+                //            //}
                 //        }
                 //    }
 
@@ -1691,53 +1821,141 @@ public class PlayerTest : MonoBehaviour
                 //    //left and right on keyboard
                 //    if (direction.x > 0f && direction.z == 0)
                 //    {
-                //        anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
-                //        speed = runSpeed;
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
+
+                //        //anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
                 //    }
                 //    else if (direction.x < 0f && direction.z == 0)
                 //    {
-                //        anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
-                //        speed = runSpeed;
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
+
+                //        //anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
                 //    }
 
                 //    //forwards and backwards on keyboard
                 //    else if (direction.z > 0f && direction.x == 0)
                 //    {
-                //        anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
-                //        speed = runSpeed;
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
+
+                //        //anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
                 //    }
                 //    else if (direction.z < 0f && direction.x == 0)
                 //    {
-                //        anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
-                //        speed = runSpeed;
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
+
+                //        //anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
                 //    }
 
                 //    //top right movement on keyboard
                 //    else if (direction.x > 0 && direction.z > 0)
                 //    {
-                //        anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                //        speed = runSpeed;
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
+
+                //        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
                 //    }
 
                 //    //bottom right movement on keyboard
                 //    else if (direction.x > 0 && direction.z < 0)
                 //    {
-                //        anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                //        speed = runSpeed;
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
+
+                //        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
                 //    }
 
                 //    //top left movement on keyboard
                 //    else if (direction.x < 0 && direction.z > 0)
                 //    {
-                //        anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                //        speed = runSpeed;
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
+
+                //        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
                 //    }
 
                 //    //bottom left movement on keyboard
                 //    else if (direction.x < 0 && direction.z < 0)
                 //    {
-                //        anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                //        speed = runSpeed;
+                //        if (runVal < 0.5f)
+                //        {
+                //            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
+                //            speed = walkSpeed;
+                //        }
+                //        else if (runVal >= 1f)
+                //        {
+                //            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
+                //            speed = runSpeed;
+                //        }
+
+                //        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
+                //        //speed = runSpeed;
                 //    }
 
                 //    //no movement on keyboard
@@ -1747,399 +1965,6 @@ public class PlayerTest : MonoBehaviour
                 //        speed = runSpeed;
                 //    }
                 //}
-                #endregion
-
-                #region Animation
-                if (playerInput.currentControlScheme == "GamePad")
-                {
-                    //top right movement on joystick
-                    if (direction.x > 0f && direction.z > 0f)
-                    {
-                        if (direction.x > direction.z)
-                        {
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
-
-
-                            //if (direction.x > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
-                            //}
-                        }
-                        else if (direction.z > direction.x)
-                        {
-
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
-
-                            //if (direction.z > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
-
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
-
-                            //}
-                        }
-                    }
-
-                    //top left movement on joystick
-                    else if (direction.x < 0f && direction.z > 0f)
-                    {
-                        if (-direction.x > direction.z)
-                        {
-
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
-                            //if (-direction.x > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
-
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
-
-                            //}
-                        }
-                        else if (direction.z > -direction.x)
-                        {
-
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
-
-                            //if (direction.z > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
-
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
-
-                            //}
-                        }
-                    }
-
-                    //bottom right movement on joystick
-                    else if (direction.x > 0f && direction.z < 0f)
-                    {
-                        if (direction.x > -direction.z)
-                        {
-
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
-
-                            //if (direction.x > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
-
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
-
-                            //}
-                        }
-                        else if (-direction.z > direction.x)
-                        {
-
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
-
-                            //if (-direction.z > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
-
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
-
-                            //}
-                        }
-                    }
-
-                    //bottom left movement on joystick
-                    else if (direction.x < 0f && direction.z < 0f)
-                    {
-                        if (-direction.x > -direction.z)
-                        {
-
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
-
-                            //if (-direction.x > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
-
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
-
-                            //}
-                        }
-                        else if (-direction.z > -direction.x)
-                        {
-
-                            if (runVal < 0.5f)
-                            {
-                                anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                                speed = walkSpeed;
-                            }
-                            else if (runVal >= 1f)
-                            {
-                                anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                                speed = runSpeed;
-                            }
-
-                            //if (-direction.z > 0.5f)
-                            //{
-                            //    anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                            //    speed = runSpeed;
-
-                            //}
-                            //else
-                            //{
-                            //    anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
-                            //    speed = walkSpeed;
-
-                            //}
-                        }
-                    }
-
-                    //no joystick movement
-                    else if (direction.x == 0 && direction.z == 0)
-                    {
-                        anim.SetFloat("MoveVal", 0, 0.1f, Time.deltaTime);
-                    }
-                }
-                else if (playerInput.currentControlScheme == "Keyboard&Mouse")
-                {
-                    //left and right on keyboard
-                    if (direction.x > 0f && direction.z == 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
-
-                        //anim.SetFloat("MoveVal", direction.x, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
-                    else if (direction.x < 0f && direction.z == 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
-
-                        //anim.SetFloat("MoveVal", -direction.x, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
-
-                    //forwards and backwards on keyboard
-                    else if (direction.z > 0f && direction.x == 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
-
-                        //anim.SetFloat("MoveVal", direction.z, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
-                    else if (direction.z < 0f && direction.x == 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
-
-                        //anim.SetFloat("MoveVal", -direction.z, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
-
-                    //top right movement on keyboard
-                    else if (direction.x > 0 && direction.z > 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
-
-                        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
-
-                    //bottom right movement on keyboard
-                    else if (direction.x > 0 && direction.z < 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
-
-                        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
-
-                    //top left movement on keyboard
-                    else if (direction.x < 0 && direction.z > 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
-
-                        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
-
-                    //bottom left movement on keyboard
-                    else if (direction.x < 0 && direction.z < 0)
-                    {
-                        if (runVal < 0.5f)
-                        {
-                            anim.SetFloat("MoveVal", 0.5f, 0.1f, Time.deltaTime);
-                            speed = walkSpeed;
-                        }
-                        else if (runVal >= 1f)
-                        {
-                            anim.SetFloat("MoveVal", 1f, 0.1f, Time.deltaTime);
-                            speed = runSpeed;
-                        }
-
-                        //anim.SetFloat("MoveVal", 1, 0.1f, Time.deltaTime);
-                        //speed = runSpeed;
-                    }
-
-                    //no movement on keyboard
-                    else if (direction.x == 0 && direction.z == 0)
-                    {
-                        anim.SetFloat("MoveVal", 0, 0.1f, Time.deltaTime);
-                        speed = runSpeed;
-                    }
-                }
 
                 #endregion
 
@@ -2147,19 +1972,23 @@ public class PlayerTest : MonoBehaviour
                 //if the aim button is released
                 if (aimVal < 0.5f)
                 {
-                    speed = walkSpeed;                   
+                    //speed = walkSpeed;                   
 
                     //switch cinemachine cam to default cam
                     defaultCam.SetActive(true);
                     aimCam.SetActive(false);
 
+                    anim.SetBool("isAiming", false);
+
                     //switch playerstate to default
                     playerState = PlayerState.Default;
+
+                    //break out of the loop
+                    break;
                 }
                 #endregion
 
                 #region Player Attack
-
                 if (attackVal >= 1f)
                 {
                     isAttacking = true;
@@ -2172,7 +2001,7 @@ public class PlayerTest : MonoBehaviour
 
                 #region Jump Check
 
-                if (isJumping)
+                if (jumpVal >= 1f && isGrounded)
                 {
                     //add jump force to our vertical velocity
                     verticalVelocity = jumpForce;
@@ -2184,8 +2013,13 @@ public class PlayerTest : MonoBehaviour
                     defaultCam.SetActive(true);
                     aimCam.SetActive(false);
 
+                    anim.SetBool("isAiming", false);
+                    anim.SetBool("isJumping", true);
+
                     //switch playerstate to jumping
                     playerState = PlayerState.Jumping;
+
+                    break;
                 }
                 #endregion
 
