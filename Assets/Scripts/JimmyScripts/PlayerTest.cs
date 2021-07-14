@@ -164,6 +164,7 @@ public class PlayerTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //set speed to walking speed
         speed = walkSpeed;
 
         //get character controller component
@@ -181,25 +182,34 @@ public class PlayerTest : MonoBehaviour
         //get main cam
         mainCam = this.transform.GetChild(1).gameObject;
 
+        //get default camera
         defaultCam = this.gameObject.transform.GetChild(2).gameObject;
 
+        //get aiming camera
         aimCam = this.gameObject.transform.GetChild(3).gameObject;
 
+        //get follow target for default camera
         defaultCameraFollowTarget = this.gameObject.transform.GetChild(4).gameObject;
 
+        //get follow target for aim camera
         aimCameraFollowTarget = this.gameObject.transform.GetChild(5).gameObject;
 
+        //attack raycast transform
         attackRaycastTransform = model.transform.GetChild(0).gameObject.transform;
 
         //set the camera's rotation to the follow target's rotationn
         newCameraRot = defaultCameraFollowTarget.transform.localRotation.eulerAngles;
 
+        //get animator component
         anim = GetComponent<Animator>();
 
         //lock cursor to center of screen;
         Cursor.lockState = CursorLockMode.Locked;
 
+        //turn default camera on
         defaultCam.SetActive(true);
+
+        //turn aim camera on
         aimCam.SetActive(false);
 
         //if you are using a gamepad set sensititvity to controller's sensitivity settings
@@ -968,7 +978,6 @@ public class PlayerTest : MonoBehaviour
                     break;
                 }
                 #endregion
-
 
                 #region Player Attack Check
 
