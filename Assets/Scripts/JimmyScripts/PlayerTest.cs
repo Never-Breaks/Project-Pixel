@@ -368,7 +368,7 @@ public class PlayerTest : MonoBehaviour
                     if (isAttacking && canAttack)
                     {
                         canAttack = false;
-                        attackDelay = 0.5f;
+                        attackDelay = 0.45f;
 
                         // Bit shift the index of the layer (7) to get a bit mask
                         int layerMask = 1 << 7;
@@ -398,7 +398,7 @@ public class PlayerTest : MonoBehaviour
                     if (isAttacking && canAttack)
                     {
                         canAttack = false;
-                        attackDelay = 0.3f;
+                        attackDelay = 0.45f;
 
                         // Bit shift the index of the layer (7) to get a bit mask
                         int layerMask = 1 << 7;
@@ -1070,10 +1070,10 @@ public class PlayerTest : MonoBehaviour
                     anim.SetBool("isDefaultAttack", true);
                     
                     //delay in between swing
-                    attackDelay = 0.5f;
+                    attackDelay = 0.45f;
 
                     //delay when releasing attack or jumping
-                    timer = 0.3f;
+                    timer = 0.4f;
 
                     playerState = PlayerState.Melee;
 
@@ -2212,8 +2212,6 @@ public class PlayerTest : MonoBehaviour
                 if (attackDelay <= 0f)
                 {
                     attackDelay = 0f;
-
-                    canAttack = true;
                 }
 
                 //update movement input
@@ -2707,6 +2705,8 @@ public class PlayerTest : MonoBehaviour
 
                     if (timer <= 0f)
                     {
+                        canAttack = true;
+
                         attackDelay = 0;
 
                         anim.SetBool("isDefaultAttack", false);
@@ -2714,6 +2714,15 @@ public class PlayerTest : MonoBehaviour
                         playerState = PlayerState.Default;
 
                         break;
+                    }
+                }
+                else if (isAttacking)
+                {
+                    timer -= Time.deltaTime;
+
+                    if (timer <= 0f && attackDelay <= 0f)
+                    {
+                        canAttack = true;
                     }
                 }
 
