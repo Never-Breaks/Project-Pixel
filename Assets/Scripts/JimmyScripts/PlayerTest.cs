@@ -368,7 +368,7 @@ public class PlayerTest : MonoBehaviour
                     if (isAttacking && canAttack)
                     {
                         canAttack = false;
-                        attackDelay = 0.45f;
+                        attackDelay = 0.3f;
 
                         // Bit shift the index of the layer (7) to get a bit mask
                         int layerMask = 1 << 7;
@@ -387,8 +387,8 @@ public class PlayerTest : MonoBehaviour
                             {
                                 Debug.Log(hitInfo.collider.gameObject);
                                 Vector3 d = hitInfo.point - attackRaycastTransform.position;
-                                Debug.DrawRay(attackRaycastTransform.position, d, Color.green);
-                                Destroy(hitInfo.collider.gameObject);
+                                Debug.DrawRay(attackRaycastTransform.position, d, Color.black);
+                               // Destroy(hitInfo.collider.gameObject);
                             }
                         }
                     }
@@ -398,7 +398,10 @@ public class PlayerTest : MonoBehaviour
                     if (isAttacking && canAttack)
                     {
                         canAttack = false;
-                        attackDelay = 0.45f;
+                        attackDelay = 0.3f;
+
+                        //delay when releasing attack or jumping
+                       // timer = 0.4f;
 
                         // Bit shift the index of the layer (7) to get a bit mask
                         int layerMask = 1 << 7;
@@ -1070,10 +1073,10 @@ public class PlayerTest : MonoBehaviour
                     anim.SetBool("isDefaultAttack", true);
                     
                     //delay in between swing
-                    attackDelay = 0.45f;
+                    attackDelay = 0.3f;
 
                     //delay when releasing attack or jumping
-                    timer = 0.4f;
+                    timer = 0.35f;
 
                     playerState = PlayerState.Melee;
 
@@ -2111,6 +2114,7 @@ public class PlayerTest : MonoBehaviour
                 #endregion
 
                 #region Player Attack
+
                 if (attackVal >= 1f)
                 {
                     isAttacking = true;
@@ -2119,6 +2123,14 @@ public class PlayerTest : MonoBehaviour
                 {
                     isAttacking = false;
                 }
+
+                if(isAttacking)
+                {
+                    anim.SetBool("isSpellAttack", true);
+                    playerState = PlayerState.Spell;
+                    break;
+                }
+
                 #endregion
 
                 #region Jump Check
@@ -2699,7 +2711,7 @@ public class PlayerTest : MonoBehaviour
                     isAttacking = false;
                 }
 
-                if (!isAttacking)
+                if (!isAttacking && attackDelay <= 0f)
                 {
                     timer -= Time.deltaTime;
 
@@ -2708,6 +2720,7 @@ public class PlayerTest : MonoBehaviour
                         canAttack = true;
 
                         attackDelay = 0;
+                        timer = 0.35f;
 
                         anim.SetBool("isDefaultAttack", false);
 
@@ -2716,14 +2729,16 @@ public class PlayerTest : MonoBehaviour
                         break;
                     }
                 }
-                else if (isAttacking)
+                else if (isAttacking && attackDelay <= 0f)
                 {
-                    timer -= Time.deltaTime;
+                    //timer -= Time.deltaTime;
 
-                    if (timer <= 0f && attackDelay <= 0f)
-                    {
+                    //if (timer <= 0f)
+                    //{
                         canAttack = true;
-                    }
+                        attackDelay = 0.35f;
+                        Debug.Log("uo");
+                    //}
                 }
 
                 #endregion
@@ -2783,6 +2798,132 @@ public class PlayerTest : MonoBehaviour
 
             case PlayerState.Spell:
 
+                speed = 0;
+
+                //update movement input
+                direction = new Vector3(moveVal.x, 0, moveVal.y);
+
+                //Ground check
+                isGrounded = cc.isGrounded;
+
+                #region Update Gravity
+                if (isGrounded)
+                {
+                    verticalVelocity = -gravity * Time.deltaTime;
+                }
+                else
+                {
+                    verticalVelocity -= gravity * Time.deltaTime;
+                }
+                #endregion
+
+                if (!isGrounded)
+                {
+                    //set timer to ground check waiting time
+                    timer = groundCheckWaitTime;
+
+                    //switch cinemachine cam to default cam
+                    defaultCam.SetActive(true);
+                    aimCam.SetActive(false);
+
+                    //go back to basic locomotion
+                    anim.SetBool("isAiming", false);
+
+                    //play falling animation
+                    anim.SetBool("isFalling", true);
+
+                    //switch playerstate to jumping
+                    playerState = PlayerState.Jumping;
+
+                    //break out of the loop
+                    break;
+                }
+
+                #region Aim Button Check
+                //if the aim button is released
+                if (aimVal < 0.5f)
+                {
+                    //speed = walkSpeed;                   
+
+                    //switch cinemachine cam to default cam
+                    defaultCam.SetActive(true);
+                    aimCam.SetActive(false);
+
+                    anim.SetBool("isSpellAttack", false);
+                    anim.SetBool("isAiming", false);
+
+                    //switch playerstate to default
+                    playerState = PlayerState.Default;
+
+                    //break out of the loop
+                    break;
+                }
+                #endregion
+
+                #region Player Attack
+                if (attackVal >= 1f)
+                {
+                    isAttacking = true;
+                }
+                else if (attackVal < 0.5f)
+                {
+                    isAttacking = false;
+                    anim.SetBool("isSpellAttack", false);
+                    speed = aimWalkSpeed;
+                    playerState = PlayerState.Aiming;
+                }
+                #endregion
+
+                #region Camera Update
+
+                wantedVelocity = lookVal * new Vector2(sensitivityX, sensitivityY);
+
+                //slowy accelerate to a velocity. this is for camera smoothing
+                //velocity = new Vector2(
+                //    Mathf.MoveTowards(velocity.x, wantedVelocity.x, acceleration.x * Time.deltaTime),
+                //    Mathf.MoveTowards(velocity.y, wantedVelocity.y, acceleration.y * Time.deltaTime));
+
+                velocity = new Vector2(wantedVelocity.x, wantedVelocity.y);
+
+                //camera pitch rotation clamped to a min and max value
+                newCameraRot.x += sensitivityY * -velocity.y /*lookVal.y*/ * Time.deltaTime;
+                newCameraRot.x = Mathf.Clamp(newCameraRot.x, viewClampYmin, viewClampYmax);
+
+                //camera yaw rotation 
+                newCameraRot.y += sensitivityX * velocity.x /*lookVal.x*/ * Time.deltaTime;
+
+                #endregion
+
+                #region Update Player Movement Variables
+                if (direction.magnitude >= 0.1f)
+                {
+                    //get angle to see how much we need to rotate on y axis from moving relative to camera
+                    targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + newCameraRot.y;
+
+                    //turn rotation to direction. direction you want to move in
+                    moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+
+                    //normalized movement vector
+                    move = moveDirection.normalized * speed;
+
+                    //smoothed angle for player rotation
+                    angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, newCameraRot.y, ref turnSmoothVelocity, defaultAttackRotationSmoothTime);
+
+                    //rotate model by smooth angle so follow target doesnt also rotate
+                    model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+                    cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.deltaTime);
+                }
+                else
+                {
+                    angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, newCameraRot.y, ref turnSmoothVelocity, aimRotationSmoothTime);
+
+                    ////rotate model by smooth angle so follow target doesnt also rotate
+                    model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+                    cc.Move(new Vector3(0, verticalVelocity, 0) * Time.deltaTime);
+                }
+                #endregion
 
                 break;
         }
