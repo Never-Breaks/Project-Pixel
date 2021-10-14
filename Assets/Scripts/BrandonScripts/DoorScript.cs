@@ -29,7 +29,10 @@ public class DoorScript : MonoBehaviour
     }
     void Update()
     {
-        QValue = player.GetComponent<PlayerTest>().QValue;
+        if(player != null)
+            QValue = player.GetComponent<PlayerTest>().QValue;
+        else
+        player = GameObject.FindGameObjectWithTag("Player");
 
         if (QValue >= 1f)
             Interacting = true;
