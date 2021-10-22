@@ -368,7 +368,7 @@ public class PlayerTest : MonoBehaviour
                     if (isAttacking && canAttack)
                     {
                         canAttack = false;
-                        attackDelay = 0.3f;
+                        //attackDelay = 0.3f;
 
                         // Bit shift the index of the layer (7) to get a bit mask
                         int layerMask = 1 << 7;
@@ -388,7 +388,7 @@ public class PlayerTest : MonoBehaviour
                                 Debug.Log(hitInfo.collider.gameObject);
                                 Vector3 d = hitInfo.point - attackRaycastTransform.position;
                                 Debug.DrawRay(attackRaycastTransform.position, d, Color.black);
-                               // Destroy(hitInfo.collider.gameObject);
+                                //Destroy(hitInfo.collider.gameObject);
                             }
                         }
                     }
@@ -398,7 +398,7 @@ public class PlayerTest : MonoBehaviour
                     if (isAttacking && canAttack)
                     {
                         canAttack = false;
-                        attackDelay = 0.3f;
+                        //attackDelay = 0.3f;
 
                         //delay when releasing attack or jumping
                        // timer = 0.4f;
@@ -1070,13 +1070,11 @@ public class PlayerTest : MonoBehaviour
 
                 if(isAttacking)
                 {
-                    anim.SetBool("isDefaultAttack", true);
-                    
-                    //delay in between swing
-                    attackDelay = 0.3f;
+                    anim.SetBool("isDefaultAttack", true);                    
 
                     //delay when releasing attack or jumping
-                    timer = 0.35f;
+                    timer = 0f;
+                    //attackDelay = 1f;
 
                     playerState = PlayerState.Melee;
 
@@ -2200,6 +2198,11 @@ public class PlayerTest : MonoBehaviour
                     //rotate model by smooth angle so follow target doesnt also rotate
                     model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
+                    if (OnSlope())
+                    {
+                        cc.Move(2 * cc.height * slopeForce * Time.deltaTime * Vector3.down);
+                    }
+
                     cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.deltaTime);
                 }
                 else
@@ -2217,13 +2220,18 @@ public class PlayerTest : MonoBehaviour
 
             case PlayerState.Melee:
 
-                attackDelay -= Time.deltaTime;
+                timer -= Time.deltaTime;
 
                 speed = walkSpeed;
-                
+
                 if (attackDelay <= 0f)
                 {
                     attackDelay = 0f;
+                }
+
+                if(timer <= 0f)
+                {
+                    timer = 0f;
                 }
 
                 //update movement input
@@ -2702,43 +2710,62 @@ public class PlayerTest : MonoBehaviour
 
                 #region Player Attack Check
 
-                if (attackVal >= 1f)
+                //if your attacking and the timer hasnt begun
+                if (attackVal >= 1f && timer <= 0)
                 {
+                    //set attacking true
                     isAttacking = true;
+
+                    //set attack delay
+                    attackDelay = 0.25f;
+
+                    //set timer for full swing (back and forth)
+                    timer = 1f;
                 }
-                else if (attackVal < 0.5f)
+                //if you are not attacking and the timer for the full swing has ended
+                else if (attackVal < 0.5f && timer <=0)
                 {
+                    // set attacking false
                     isAttacking = false;
+
+                    //set attack delay to 0
+                    attackDelay = 0;
+
+                    //set timer to 0
+                    timer = 0;
                 }
-
-                if (!isAttacking && attackDelay <= 0f)
+                // if you are swinging and the attack delay is more than 0
+                if (timer > 0f && attackDelay > 0f)
                 {
-                    timer -= Time.deltaTime;
+                    //decrease the attack delay time
+                    attackDelay -= Time.deltaTime;
 
-                    if (timer <= 0f)
+                    //if the attack delay time is 0
+                    if (attackDelay <= 0f)
                     {
+                        //set can attack true
                         canAttack = true;
-
-                        attackDelay = 0;
-                        timer = 0.35f;
-
-                        anim.SetBool("isDefaultAttack", false);
-
-                        playerState = PlayerState.Default;
-
-                        break;
                     }
                 }
-                else if (isAttacking && attackDelay <= 0f)
+                //if you are swinging and the attack delay time is 0
+                else if(timer > 0f && attackDelay <= 0f)
                 {
-                    //timer -= Time.deltaTime;
+                    //check if you are half way through the swing before resetting the attack delay
+                    if (timer <= 0.5f)
+                    {
+                        //set attack delay
+                        attackDelay = 0.25f;
+                    }
+                }
+                
+                //if your not attacking and the timer for swinging has ended
+                else if (!isAttacking && timer <= 0f)
+                {                  
+                    anim.SetBool("isDefaultAttack", false);
 
-                    //if (timer <= 0f)
-                    //{
-                        canAttack = true;
-                        attackDelay = 0.35f;
-                        Debug.Log("uo");
-                    //}
+                    playerState = PlayerState.Default;
+
+                    break;
                 }
 
                 #endregion
