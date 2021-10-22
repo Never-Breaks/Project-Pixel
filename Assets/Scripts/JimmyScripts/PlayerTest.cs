@@ -1125,23 +1125,23 @@ public class PlayerTest : MonoBehaviour
                         //rotate model by smooth angle so follow target doesnt also rotate
                         model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
                     }
-                    else if (isAttacking)
-                    {
-                        //get angle to see how much we need to rotate on y axis from moving relative to camera
-                        targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + newCameraRot.y;
+                    //else if (isAttacking)
+                    //{
+                    //    //get angle to see how much we need to rotate on y axis from moving relative to camera
+                    //    targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + newCameraRot.y;
 
-                        //turn rotation to direction. direction you want to move in
-                        moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+                    //    //turn rotation to direction. direction you want to move in
+                    //    moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
 
-                        //normalized movement vector
-                        move = moveDirection.normalized * speed;
+                    //    //normalized movement vector
+                    //    move = moveDirection.normalized * speed;
 
-                        //smoothed angle for player rotation
-                        angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, newCameraRot.y, ref turnSmoothVelocity, defaultAttackRotationSmoothTime);
+                    //    //smoothed angle for player rotation
+                    //    angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, newCameraRot.y, ref turnSmoothVelocity, defaultAttackRotationSmoothTime);
 
-                        //rotate model by smooth angle so follow target doesnt also rotate
-                        model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
-                    }
+                    //    //rotate model by smooth angle so follow target doesnt also rotate
+                    //    model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+                    //}
                     ////move
                     cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.deltaTime);
 
@@ -1152,16 +1152,16 @@ public class PlayerTest : MonoBehaviour
                 }
                 else
                 {
-                    //rotation of model when attacking or not attacking while moving
-                    if (isAttacking)
-                    {
-                        Debug.Log("ee");
-                        ////smooth angle for player rotation
-                        angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, newCameraRot.y, ref turnSmoothVelocity, defaultAttackRotationSmoothTime);
+                    ////rotation of model when attacking or not attacking while moving
+                    //if (isAttacking)
+                    //{
+                    //    Debug.Log("ee");
+                    //    ////smooth angle for player rotation
+                    //    angle = Mathf.SmoothDampAngle(model.transform.eulerAngles.y, newCameraRot.y, ref turnSmoothVelocity, defaultAttackRotationSmoothTime);
 
-                        //rotate model by smooth angle so follow target doesnt also rotate
-                        model.transform.rotation = Quaternion.Euler(0f, angle, 0f); ;
-                    }
+                    //    //rotate model by smooth angle so follow target doesnt also rotate
+                    //    model.transform.rotation = Quaternion.Euler(0f, angle, 0f); ;
+                    //}
 
                     cc.Move(new Vector3(0, verticalVelocity, 0) * Time.deltaTime);
 
@@ -2782,6 +2782,11 @@ public class PlayerTest : MonoBehaviour
                     model.transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
                     cc.Move(new Vector3(move.x, verticalVelocity, move.z) * Time.deltaTime);
+
+                    if (OnSlope())
+                    {
+                        cc.Move(2 * cc.height * slopeForce * Time.deltaTime * Vector3.down);
+                    }
                 }
                 else
                 {
