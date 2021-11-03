@@ -146,6 +146,8 @@ public class PlayerTest : MonoBehaviour
 
     public Transform attackRaycastTransform;
 
+    public Transform spellAttackRaycastTransform;
+
     public bool isAttacking = false;
 
     public bool isJumping = false;
@@ -164,6 +166,12 @@ public class PlayerTest : MonoBehaviour
     
     [HideInInspector]
     public float QValue;
+
+    public GameObject spellPrefab;
+
+    GameObject spellParticle;
+
+    public bool spellActive;
 
     // Start is called before the first frame update
     void Start()
@@ -201,8 +209,13 @@ public class PlayerTest : MonoBehaviour
         //attack raycast transform
         attackRaycastTransform = model.transform.GetChild(0).gameObject.transform;
 
+        //spell attack raycast transform
+        spellAttackRaycastTransform = model.transform.GetChild(1).gameObject.transform;
+
         //set the camera's rotation to the follow target's rotationn
         newCameraRot = defaultCameraFollowTarget.transform.localRotation.eulerAngles;
+
+        spellPrefab = Resources.Load("WaterCannonLonger") as GameObject;
 
         //get animator component
         anim = GetComponent<Animator>();
@@ -450,27 +463,41 @@ public class PlayerTest : MonoBehaviour
                 #region Attack Raycasting
                 if (playerInput.currentControlScheme == "Keyboard&Mouse")
                 {
-                    if (isAttacking)
+                    if (isAttacking && spellActive)
                     {
                         Ray rayOrigin = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
                         RaycastHit hitInfo;
 
-                        if (Physics.Raycast(rayOrigin, out hitInfo, 10f))
-                        {
+                        //Debug.DrawRay(spellAttackRaycastTransform.position, rayOrigin.direction, Color.green);
+                        //spellParticle.transform.LookAt(rayOrigin.origin);
 
+                        //spellParticle.transform.rotation = Quaternion.LookRotation(spellAttackRaycastTransform.position + rayOrigin.direction * 5f);
+
+
+                        if (Physics.Raycast(rayOrigin, out hitInfo, 5f))
+                        {
                             if (hitInfo.collider != null)
                             {
                                 Debug.Log(hitInfo.collider.gameObject);
-                                Vector3 d = hitInfo.point - attackRaycastTransform.position;
-                                Debug.DrawRay(attackRaycastTransform.position, d, Color.green);
-                            }
+                                Vector3 d = hitInfo.point - spellAttackRaycastTransform.position;
+                                Debug.DrawRay(spellAttackRaycastTransform.position, d, Color.green);
 
+                                for(int i = 0; i < spellParticle.transform.childCount; i++)
+                                {
+                                    GameObject particleEffect;
+                                    particleEffect = spellParticle.transform.GetChild(i).gameObject;
+                                    ParticleSystem.MainModule p = particleEffect.GetComponent<ParticleSystem>().main;
+                                    p.startLifetime = Vector3.Distance(hitInfo.point, spellAttackRaycastTransform.position);
+                                }
+
+                                spellParticle.transform.rotation = Quaternion.LookRotation(d);
+                            }
                         }
                     }
                 }
                 else if (playerInput.currentControlScheme == "GamePad")
                 {
-                    if (isAttacking)
+                    if (isAttacking && spellActive)
                     {
                         // Create a vector at the center of our camera's viewport
                         Vector3 rayOrigin = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.0f));
@@ -478,15 +505,19 @@ public class PlayerTest : MonoBehaviour
                         // Declare a raycast hit to store information about what our raycast has hit
                         RaycastHit hit;
 
+                        Debug.DrawRay(spellAttackRaycastTransform.position, spellAttackRaycastTransform.position - rayOrigin, Color.black);
+                        spellParticle.transform.rotation = Quaternion.LookRotation(spellAttackRaycastTransform.position - rayOrigin);
+
+
                         // Check if our raycast has hit anything
-                        if (Physics.Raycast(rayOrigin, mainCam.transform.forward, out hit, 10f))
+                        if (Physics.Raycast(rayOrigin, mainCam.transform.forward, out hit, 5f))
                         {
                             Debug.Log(hit.collider.gameObject);
 
-                            Vector3 d = hit.point - attackRaycastTransform.position;
+                            Vector3 d = hit.point - spellAttackRaycastTransform.position;
 
                             // Rest of your code - what to do when raycast hits anything
-                            Debug.DrawRay(attackRaycastTransform.position, d, Color.black);
+                            Debug.DrawRay(spellAttackRaycastTransform.position, d, Color.black);
                         }
 
                     }
@@ -2875,7 +2906,13 @@ public class PlayerTest : MonoBehaviour
                 //if the aim button is released
                 if (aimVal < 0.5f)
                 {
-                    //speed = walkSpeed;                   
+                    //speed = walkSpeed;
+                    //
+                    if (spellActive)
+                    {
+                        Destroy(spellParticle);
+                        spellActive = false;
+                    }
 
                     //switch cinemachine cam to default cam
                     defaultCam.SetActive(true);
@@ -2893,12 +2930,29 @@ public class PlayerTest : MonoBehaviour
                 #endregion
 
                 #region Player Attack
+
                 if (attackVal >= 1f)
                 {
                     isAttacking = true;
+
+                    if (!spellActive)
+                    {
+                        spellParticle = Instantiate(spellPrefab, spellAttackRaycastTransform.position, Quaternion.identity);
+                        spellActive = true;
+                    }
+                    else if(spellActive)
+                    {
+                        spellParticle.transform.position = spellAttackRaycastTransform.position;                        
+                    }
                 }
                 else if (attackVal < 0.5f)
                 {
+                    if (spellActive)
+                    {
+                       // Destroy(spellParticle);
+                        spellActive = false;
+                    }
+
                     isAttacking = false;
                     anim.SetBool("isSpellAttack", false);
                     speed = aimWalkSpeed;
